@@ -1,0 +1,41 @@
+# Ignore raw data files
+raw_data/
+*.csv
+
+# Ignore processed or cleaned data
+cleaned_data/
+logs/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore RStudio project files
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Ignore Python virtual environment (if any)
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore large output files
+*.log
+*.out
+
+# Ignore temporary files
+*.tmp
+*.swp
+
+# Ignore compiled libraries
+*.o
+*.so
+
+# Ignore Git LFS files (since you're no longer using LFS)
+.gitattributes
