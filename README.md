@@ -104,6 +104,16 @@ logs/
 
 ## 🚀 Getting Started
 
+### 🛠 Debug Mode for Configuration
+By default, `config.R` suppresses directory path messages.  
+If you need to verify the project paths (for the first run), enable **debug mode** by setting:
+
+```r 
+show_paths <- TRUE  # Change to TRUE to print directory paths
+```
+---
+
+
 ### 📥 Clone the Repository
 1. **Download the project files by cloning the repository:**
    ```bash

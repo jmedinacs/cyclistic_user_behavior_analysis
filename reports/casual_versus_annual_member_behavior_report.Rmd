@@ -1,0 +1,120 @@
+---
+title: "Casual versus Annual Member Behavior Analysis Report"
+author: "JohnPaul Medina"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source(here::here("config.R"))
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This analysis explores usage patterns of Cyclistic’s bike-sharing service, aiming to uncover actionable insights that differentiate casual users from annual members. The goal is to support business strategies for increasing membership subscriptions.
+
+### Objective:
+- Identify differences in usage behavior between casual riders and annual members.
+- Provide recommendations to convert casual riders into long-term subscribers.
+
+## Business Problem
+
+Cyclistic wants to increase its membership subscriptions. To support this goal, we need to analyze historical ride data and identify behavioral differences between casual riders and annual members.
+
+### Business Task:
+> **What key differences exist between casual riders and annual members, and how can we encourage casual riders to become annual members?**
+
+## Data Source
+
+The dataset used for this project comes from **[Divvy Bikes](https://divvybikes.com/system-data)**, a bike-share service operating in Chicago. The data is used in accordance with the [Divvy Bikes Data License Agreement](https://divvybikes.com/data-license-agreement).
+
+The data includes:
+- Ride ID, type of bike, and user category.
+- Timestamps for the start and end of each ride.
+- Starting and ending station locations, station ids, and names.
+
+## Data Cleaning and Preparation
+
+Before performing any analysis, it is essential to:
+- Ensure data types are consistent across datasets.
+- Convert date-time columns into the appropriate format.
+- Identify and remove any inconsistencies, such as missing or duplicated entries.
+
+### Initial Exploration of Datasets
+1. Load the January 2024 dataset and analyze the column names and data type using str()
+2. Create a function that reads each dataset and display all their column names.
+3. Create a function that checks and displays each column's data type. 
+
+#### Initial check of January 2024 dataset
+Here we see that there are 13 columns and their data types. Notice that the 
+started_at and ended_at columns are `characters` instead of dates in `POSIXct` 
+which is the data type that will let us compute ride duration information. 
+```{r Loading Jan 2024 and column atrributes check}
+# Load the first dataset
+jan_2024 <- read.csv(file.path(raw_data_dir,"202401-divvy-tripdata.csv"))
+
+#Display the column names and their respective data types.
+str(jan_2024)
+```
+#### Checking if every column in every dataset are consistent (same)
+Next step is to check if all of the column names of every column in every 
+dataset are the same.  
+The result shows that all of the datasets have the same names through the use 
+of the unique() function. 
+```{r Column name check}
+# Funciton that checks if all the column names are exactly the same
+check_column_names <- function(directory){
+  # Compile all the raw dataset into a list
+  raw_files <- list.files(path = raw_data_dir, pattern = "*.csv",
+                          full.names = TRUE)
+  # Read the column names for each file
+  column_names_list <- lapply(raw_files, 
+                              function(file) colnames(read.csv(file, nrows=1)))
+  
+  # Check if all datasets have the same column names
+  # unique function removes all duplicates except for the first one.
+  unique_columns <- unique(column_names_list)
+  
+  if(length(unique_columns) == 1){ # If all are matching, only 1 left in the list
+    print(" All datasets have consistent column names.")
+  }else{
+    print("Column name mismatch found!")
+    print(unique_columns) # prints the unique columns
+  }
+}
+# Call the function and provide the raw directory as the parameter
+check_column_names(raw_data_dir)
+```
+#### Check if all the columns of each dataset have the same data type
+To ensure consistency across all datasets used in this analysis, we verified that each column maintains the same data type across files.
+Since missing values could affect type inference, they were explicitly set to NA to prevent inconsistencies.
+```{r Column data type check}
+# This function checks if all the data types in each column of every dataset
+# is the same type. This will print the mismatched data types if found. 
+check_data_types <- function(directory) {
+  # List all CSV files
+  files <- list.files(path = directory, pattern = "*.csv", full.names = TRUE)
+  
+  # Read and check column data types for each file
+  data_types_list <- lapply(files, function(file) {
+    df <- read.csv(file, na.strings = c("", "NA"))  # Treat empty strings as NA
+    sapply(df, class)  # Get data types
+  })
+  
+  # Check if all datasets have consistent data types
+  unique_data_types <- unique(data_types_list)
+  
+  if (length(unique_data_types) == 1) {
+    print("All datasets have consistent data types.")
+  } else {
+    print("Data type mismatch detected! Showing unique data types:")
+    print(unique_data_types)
+  }
+}
+
+# Run the function
+check_data_types(raw_data_dir)
+
+```
+
