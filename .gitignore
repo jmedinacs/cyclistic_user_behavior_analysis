@@ -1,9 +1,9 @@
 # Ignore raw data files
-raw_data/
-*.csv
+data/raw/
+data/**/*.csv  # Ignore all CSV files only inside data/
 
 # Ignore processed or cleaned data
-cleaned_data/
+data/processed/
 logs/
 
 # Ignore system files
@@ -36,6 +36,3 @@ __pycache__/
 # Ignore compiled libraries
 *.o
 *.so
-
-# Ignore Git LFS files (since you're no longer using LFS)
-.gitattributes

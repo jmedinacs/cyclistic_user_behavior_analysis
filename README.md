@@ -1,4 +1,5 @@
 # 🚲 Google Data Analytics Capstone Project: Cyclistic Customer Access Analysis
+## **This project is still a work in progress, this message will be removed when it is completed **
 
 This project is part of the **Google Data Analytics Professional Certificate Capstone**. It aims to analyze bike-share data from **Cyclistic** to provide actionable insights for increasing customer memberships.
 
@@ -38,7 +39,7 @@ Due to GitHub's file size limitations, the cleaned and combined dataset is hoste
 
 ### 📥 Steps to Use:
 1. Download the dataset from the link above.
-2. Place the downloaded file in the `cleaned_data/` folder inside the project directory.
+2. Place the downloaded file in the `data/processed/` folder inside the project directory.
 3. Run the analysis scripts as instructed in the repository documentation.
 
 ---
@@ -66,6 +67,7 @@ The dataset underwent several cleaning steps to ensure accuracy and consistency:
 For a full breakdown of the data cleaning process and versioned logs, refer to the detailed [Cleaning Log](https://docs.google.com/spreadsheets/d/your-google-sheet-id) hosted on Google Sheets.
 
 ---
+
 ### 📚 Citation
 
 If you use this data or refer to this project, please cite the dataset as follows:
@@ -75,10 +77,50 @@ If you use this data or refer to this project, please cite the dataset as follow
 Additionally, acknowledge the usage terms by linking to the [Divvy Bikes Data License Agreement](https://divvybikes.com/data-license-agreement).
 ---
 
-## 🚀 How to Use This Repository
+## 📂 Data Storage & Version Control
+
+This project uses `.gitignore` to **prevent large data files from being committed** to GitHub.  
+Raw and processed data files are stored **locally** in:
+
+- `data/raw/` → Stores the original datasets.
+- `data/processed/` → Stores cleaned and transformed datasets.
+
+### 📌 How to Prepare Your Data Folder
+You **do not** need to manually create these folders.  
+Running `config.R` will automatically generate them.
+
+### 🛑 Why Are Data Files Missing from GitHub?
+To prevent large files from causing issues, we exclude:
+
+```gitignore
+# Ignore raw and processed data
+data/raw/
+data/processed/
+data/**/*.csv  # Ignore all CSV files inside data/
+logs/
+```
+
+---
+
+## 🚀 Getting Started
 
 ### 📥 Clone the Repository
-
-1. **Clone this repository:**
+1. **Download the project files by cloning the repository:**
    ```bash
-   git clone https://github.com/jmedinacs/cyclistic_user_analysis.git
+   git clone https://github.com/jmedinacs/cyclistic_user_behavior_analysis.git
+   cd cyclistic_user_behavior_analysis
+   ```
+
+### 🎓 Run the Analysis
+To begin the analysis, open **RStudio** and run:
+   ```r
+   source("config.R")  # Sets up project paths
+   source("data_cleaning.R")  # Cleans & prepares data
+   source("analysis.R")  # Runs analysis
+   ```
+
+---
+
+## ⭐ License
+
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
