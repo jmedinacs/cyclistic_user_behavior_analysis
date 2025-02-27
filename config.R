@@ -4,6 +4,7 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(knitr)
+library(lubridate)
 
 # Define base project directory, location of config.R considered base location
 project_dir <- here::here()
@@ -32,6 +33,7 @@ cleaned_data_rds <- file.path(processed_data_dir, "cyclistic_cleaned.rds")
 
 # Define analysis parameters
 time_bin_size <- 2  # Bin time-of-day into 2-hour intervals
+timezone = "America/Chicago"
 
 # Debug flag for printing directory paths
 show_paths <- FALSE  # Set to TRUE to print paths
