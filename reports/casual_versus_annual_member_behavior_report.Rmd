@@ -117,4 +117,31 @@ check_data_types <- function(directory) {
 check_data_types(raw_data_dir)
 
 ```
+#### Combine the datasets into one dataset and repalce missing values with NA
+Now that the datasets have been verified, they are now combined into a **single 
+dataset** and saved as an rds and a csv in the `processed` folder.  
+- **The RDS format (.rds)** is used for **faster access and memory efficiency** in R.  
+- **The CSV format (.csv)** is also saved for **reference and external use**. 
+```{r Combine dataset and replace missing values with NA}
+# List all csv files from raw_data_dir
+raw_files <- list.files(path = raw_data_dir, pattern = "*.csv", 
+                        full.names = TRUE)
+
+# Read all the files and replace empty data into NA
+cyclistic_combined_raw <- lapply(raw_files, function(file){
+  df <- read.csv(file, na.strings = c("","NA")) # convert missing values to NA
+  return(df)
+})
+
+# Combine all datasets into one
+combined_dataset <- bind_rows(cyclistic_combined_raw)
+
+```
+Verify the content of the combined data.
+```{r Verify combined_data__raw content}
+dim(combined_dataset)
+head(combined_dataset)
+tail(combined_dataset)
+
+```
 

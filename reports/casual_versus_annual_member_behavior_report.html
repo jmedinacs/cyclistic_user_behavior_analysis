@@ -504,6 +504,82 @@ check_data_types &lt;- function(directory) {
 check_data_types(raw_data_dir)</code></pre>
 <pre><code>## [1] &quot;All datasets have consistent data types.&quot;</code></pre>
 </div>
+<div id="combine-the-datasets-into-one-dataset-and-repalce-missing-values-with-na" class="section level4">
+<h4>Combine the datasets into one dataset and repalce missing values
+with NA</h4>
+<p>Now that the datasets have been verified, they are now combined into
+a <strong>single dataset</strong> and saved as an rds and a csv in the
+<code>processed</code> folder.<br />
+* The <strong>RDS format</strong> (.rds) is used for <strong>faster
+access and memory efficiency</strong> in R. * The <strong>CSV
+format</strong> (.csv) is also saved for reference and external use.</p>
+<pre class="r"><code># List all csv files from raw_data_dir
+raw_files &lt;- list.files(path = raw_data_dir, pattern = &quot;*.csv&quot;, 
+                        full.names = TRUE)
+
+# Read all the files and replace empty data into NA
+cyclistic_combined_raw &lt;- lapply(raw_files, function(file){
+  df &lt;- read.csv(file, na.strings = c(&quot;&quot;,&quot;NA&quot;)) # convert missing values to NA
+  return(df)
+})
+
+# Combine all datasets into one
+combined_dataset &lt;- bind_rows(cyclistic_combined_raw)</code></pre>
+<p>***Verify the content of the combined data.</p>
+<pre class="r"><code>dim(combined_dataset)</code></pre>
+<pre><code>## [1] 5999257      13</code></pre>
+<pre class="r"><code>head(combined_dataset)</code></pre>
+<pre><code>##            ride_id rideable_type          started_at            ended_at
+## 1 C1D650626C8C899A electric_bike 2024-01-12 15:30:27 2024-01-12 15:37:59
+## 2 EECD38BDB25BFCB0 electric_bike 2024-01-08 15:45:46 2024-01-08 15:52:59
+## 3 F4A9CE78061F17F7 electric_bike 2024-01-27 12:27:19 2024-01-27 12:35:19
+## 4 0A0D9E15EE50B171  classic_bike 2024-01-29 16:26:17 2024-01-29 16:56:06
+## 5 33FFC9805E3EFF9A  classic_bike 2024-01-31 05:43:23 2024-01-31 06:09:35
+## 6 C96080812CD285C5  classic_bike 2024-01-07 11:21:24 2024-01-07 11:30:03
+##           start_station_name start_station_id          end_station_name
+## 1          Wells St &amp; Elm St     KA1504000135  Kingsbury St &amp; Kinzie St
+## 2          Wells St &amp; Elm St     KA1504000135  Kingsbury St &amp; Kinzie St
+## 3          Wells St &amp; Elm St     KA1504000135  Kingsbury St &amp; Kinzie St
+## 4     Wells St &amp; Randolph St     TA1305000030 Larrabee St &amp; Webster Ave
+## 5 Lincoln Ave &amp; Waveland Ave            13253  Kingsbury St &amp; Kinzie St
+## 6          Wells St &amp; Elm St     KA1504000135  Kingsbury St &amp; Kinzie St
+##   end_station_id start_lat start_lng  end_lat   end_lng member_casual
+## 1   KA1503000043  41.90327 -87.63474 41.88918 -87.63851        member
+## 2   KA1503000043  41.90294 -87.63444 41.88918 -87.63851        member
+## 3   KA1503000043  41.90295 -87.63447 41.88918 -87.63851        member
+## 4          13193  41.88430 -87.63396 41.92182 -87.64414        member
+## 5   KA1503000043  41.94880 -87.67528 41.88918 -87.63851        member
+## 6   KA1503000043  41.90322 -87.63432 41.88918 -87.63851        member</code></pre>
+<pre class="r"><code>tail(combined_dataset)</code></pre>
+<pre><code>##                  ride_id rideable_type              started_at
+## 5999252 8F27F635AD3EC17D electric_bike 2025-01-19 12:16:15.551
+## 5999253 EDA9D2E5E9522300  classic_bike 2025-01-12 14:16:33.861
+## 5999254 00B2ACA37BFEE6CD electric_bike 2025-01-18 09:44:57.802
+## 5999255 42B036EAD9E813FB  classic_bike 2025-01-06 08:03:09.104
+## 5999256 870C92298391825D  classic_bike 2025-01-09 15:28:02.640
+## 5999257 3D0D009614056F36  classic_bike 2025-01-08 07:56:05.205
+##                        ended_at   start_station_name start_station_id
+## 5999252 2025-01-19 12:24:01.221  Ellis Ave &amp; 60th St     KA1503000014
+## 5999253 2025-01-12 14:24:16.135  Ellis Ave &amp; 60th St     KA1503000014
+## 5999254 2025-01-18 09:50:34.544  Ellis Ave &amp; 60th St     KA1503000014
+## 5999255 2025-01-06 08:08:16.801 Wells St &amp; Walton St     TA1306000011
+## 5999256 2025-01-09 15:35:22.135  Ellis Ave &amp; 60th St     KA1503000014
+## 5999257 2025-01-08 08:01:07.372 Wells St &amp; Walton St     TA1306000011
+##              end_station_name end_station_id start_lat start_lng  end_lat
+## 5999252   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107 41.79934
+## 5999253   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107 41.79934
+## 5999254   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107 41.79934
+## 5999255 Wells St &amp; Hubbard St   TA1307000151  41.89993 -87.63443 41.88991
+## 5999256   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107 41.79934
+## 5999257 Wells St &amp; Hubbard St   TA1307000151  41.89993 -87.63443 41.88991
+##           end_lng member_casual
+## 5999252 -87.60096        member
+## 5999253 -87.60096        member
+## 5999254 -87.60096        member
+## 5999255 -87.63427        member
+## 5999256 -87.60096        casual
+## 5999257 -87.63427        casual</code></pre>
+</div>
 </div>
 </div>
 
