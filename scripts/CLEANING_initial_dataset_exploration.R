@@ -33,7 +33,7 @@ check_column_names <- function(directory){
     print(unique_columns) # prints the unique columns
   }
 }
-
+# Call the function
 check_column_names(raw_data_dir)
 
 
