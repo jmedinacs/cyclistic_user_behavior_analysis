@@ -1,4 +1,4 @@
-# CLEANING_merge-dataset_and_convert_missing_values_to_NA
+# CLEANING_merge_dataset_and_convert_missing_values_to_NA
 # This script will merge the multiple datasets into one dataset while
 # converting missing values into NA for easier identification and error
 # handling for computations later on.
@@ -12,7 +12,7 @@ raw_files <- list.files(path = raw_data_dir, pattern = "*.csv",
 
 # Read all the files and replace empty data into NA
 cyclistic_combined_raw <- lapply(raw_files, function(file){
-  df <- read.csv(file, na.strings = c("","NA")) # Read each file
+  df <- read.csv(file, na.strings = c("", "NA"))  # Convert "" and "NA" to NA
   return(df)
 })
 

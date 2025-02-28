@@ -144,4 +144,68 @@ head(combined_dataset)
 tail(combined_dataset)
 
 ```
+#### Transform `ended_at` and `started_at` dates to `POSIXct`  
+From exploration, the `ended_at` and `started_at` columns are in `character` 
+format instead of `POSIXct` which is not ideal for computing the time difference 
+between the two columns.  
+Here we are converting those column data and checking the end result. Also, not 
+shown are the codes for saving the RDS and CSV files as cleaned_data.
+```{r Transform character dates to POSIXct}
+# Load the raw data
+raw_combined_data <- readRDS(combined_raw_data_file)
+
+convert_dates <- function(df){
+  df$started_at <- ymd_hms(df$started_at, tz = timezone)
+  df$ended_at <- ymd_hms(df$ended_at, tz = timezone)
+  return(df)
+}
+
+# Apply the function
+processed_data <- convert_dates(raw_combined_data)
+
+# Check if conversion was successful
+str(processed_data$started_at)
+str(processed_data$ended_at)
+
+temp = readRDS(cleaned_data_rds)
+head(temp)
+tail(temp)
+
+```
+#### Identify and evaluate missing data
+Data accuracy and integrity is just as important as having data. This section 
+checks each column for missing data that are either **empty strings** `""` or 
+**"NA"** values.  
+- We count the number of missing values in each column and assess whether they 
+impact our analysis.
+- what data is missing and if any of the data are usable. 
+##### Result
+The analysis reveals that approximately **20%** of the dataset is missing 
+`end_station_name`, `end_station_id`, start_station_name`, and 
+`start_station_id`.  
+Based on our business question and approach, 
+we can keep these data when we focus on ride duration (0 missing data), and 
+ignore them when we count the top start and end stations. 
+```{r Count missing data}
+# Load the most current version of the cleaned_data_rds to ensure accuracy
+df <- readRDS(cleaned_data_rds)
+
+# Function that counts the missing values per column
+missing_values_summary <- function(df) {
+  missing_counts <- sapply(df, function(x) sum(is.na(x)))
+  
+  # Convert it to a data frame for better readability
+  missing_summary <- data.frame(Column = names(missing_counts),
+                                Missing_Count = missing_counts)
+  
+  # Sort by highest missing values first
+  missing_summary <- missing_summary[order(-missing_summary$Missing_Count),]
+  
+  return(missing_summary)
+}
+
+missing__summary <- missing_values_summary(df)
+
+print(missing__summary)
+```
 

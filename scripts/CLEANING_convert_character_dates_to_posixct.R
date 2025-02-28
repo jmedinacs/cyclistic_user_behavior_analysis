@@ -1,5 +1,5 @@
 # CLEANING_convert_character_dates_to_posixct
-# THis script will convert the started_at and ended_at columns from charcater 
+# THis script will convert the started_at and ended_at columns from character 
 # to POSIXct to facilitate computation. 
 
 source("config.R")

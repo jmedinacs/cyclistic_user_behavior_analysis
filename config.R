@@ -30,6 +30,7 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 combined_raw_data_file <- file.path(processed_data_dir, "cyclistic_combined_raw.rds")
 cleaned_data_csv <- file.path(processed_data_dir, "cyclistic_cleaned.csv")
 cleaned_data_rds <- file.path(processed_data_dir, "cyclistic_cleaned.rds")
+cleaned_data_file <- file.path(processed_data_dir, "cyclistic_cleaned.csv")
 
 # Define analysis parameters
 time_bin_size <- 2  # Bin time-of-day into 2-hour intervals
