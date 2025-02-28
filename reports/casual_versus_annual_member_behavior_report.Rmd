@@ -204,8 +204,8 @@ missing_values_summary <- function(df) {
   return(missing_summary)
 }
 
-missing__summary <- missing_values_summary(df)
+missing_summary <- missing_values_summary(df)
 
-print(missing__summary)
+print(missing_summary)
 ```
 

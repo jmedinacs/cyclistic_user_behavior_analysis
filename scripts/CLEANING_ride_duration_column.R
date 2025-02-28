@@ -29,7 +29,7 @@ calculate_ride_duration <- function(df){
 cleaned_dataset <- calculate_ride_duration(cleaned_data)
 
 # Save an RDS version using config.R variable
-saveRDS(cleaned_dataset, file = cleaned_data_file)
+saveRDS(cleaned_dataset, file = cleaned_data_rds)
 
 # Save a CSV version dynamically
 write.csv(combined_dataset, 
