@@ -27,7 +27,3 @@ saveRDS(processed_data, file = cleaned_data_rds)
 write.csv(processed_data, 
           file = cleaned_data_csv, 
           row.names = FALSE)
-
-temp = readRDS(cleaned_data_rds)
-head(temp)
-tail(temp)
