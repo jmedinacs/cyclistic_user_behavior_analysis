@@ -155,3 +155,89 @@ write.csv(sim_combined_dataset,
           file.path(sim_processed_data_dir, "sim_combined_raw_data.csv"),row.names = FALSE)
 ```
 
+
+---
+
+## Part 3: Converting `started_at` and `ended_at` Character Dates into POSIXct
+Based on our exploration and analysis, the `started_at` and `ended_at` columns 
+of the dataset are in `character` format. We need to convert them into `POSIXct` 
+format to facilitate computation of **time** specific values. 
+
+```{r convert-character-dates-to-POSIXct}
+# Load the combined raw data
+sim_raw_combined_data <- 
+  readRDS(file.path(sim_processed_data_dir, "sim_combined_raw_data.rds"))
+
+# Convert character dates in started_at and ended_at into POSIXct
+sim_convert_dates <- function(df){
+  df$started_at <- ymd_hms(df$started_at, tz = timezone)
+  df$ended_at <- ymd_hms(df$ended_at, tz = timezone)
+  return(df)
+}
+
+# Apply the function
+sim_processed_data <- sim_convert_dates(sim_raw_combined_data)
+
+# Check that the conversion was successful
+message("Date conversion completed.")
+print("started_at column preview")
+str(sim_processed_data$started_at)
+print("ended_at column preview")
+str(sim_processed_data$ended_at)
+
+# Save processed data as RDS, given specific name for this simulation
+saveRDS(sim_processed_data, 
+        file.path(sim_processed_data_dir,"processed_combined_data_posixct.rds"))
+
+message("RDS file saved successfully: processed_combined_data_posixct.rds")
+
+```
+
+---
+
+## Part 4: Check and Count Missing Values per Column
+Checking for missing values in the dataset by column. Missing values can skew 
+the result of data use and interpretation; thus, understanding what data are 
+missing and making a decision on how to handle them is important.
+
+### Initial Analysis and Plan
+The highest number of missing values is **1,128,726** which represents about 
+20% of the entire datase. Further investigation is needed to determine how this 
+affects the project's objectives and how this may be handled.
+
+```{r checking-for-missing-data-by-column}
+# Load the most recent cleaned rds
+df <- 
+  readRDS(file.path(sim_processed_data_dir, 
+                    "processed_combined_data_posixct.rds"))
+
+# Function that counts the missing values per column
+# There is a more direct and easier way to do this but this creates a table
+# that displays the information in a more accessible format.
+sim_missing_values_summary <- function(df){
+  sim_missing_counts <- sapply(df, function(x) sum(is.na(x)))
+  
+  # Convert the summary into a data frame
+  sim_missing_summary <- data.frame(Column=names(sim_missing_counts),
+                                    Missing_Count=sim_missing_counts)
+  
+  # Sort by highest missing values first
+  sim_missing_summary <- sim_missing_summary[order(-sim_missing_summary$Missing_Count),]
+  
+  return(sim_missing_summary)
+}
+
+sim_missing_summary <- missing_values_summary(df)
+
+# Display the missing values summary as a formatted table
+knitr::kable(sim_missing_summary, caption = "Missing Values Summary by Column")
+
+```
+```{r save-missing-values-summary, echo=FALSE, include=FALSE}
+# Save the summary for use in report and documentation.
+write.csv(sim_missing_summary, file.path(sim_processed_data_dir,
+    "sim_missing_values_summary.csv"), row.names = FALSE)
+message("Missing values summary saved in processed folder.")
+
+```
+

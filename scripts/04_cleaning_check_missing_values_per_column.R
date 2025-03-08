@@ -1,4 +1,4 @@
-# CLEANING_check_missing_values_per_column
+# 04_cleaning_check_missing_values_per_column
 # This script functions as a way to explore the data by tracking which 
 # columns have missing data. 
 
@@ -24,4 +24,9 @@ missing_values_summary <- function(df) {
 
 missing_summary <- missing_values_summary(df)
 
-print(missing_summary)
+# Display the missing values summary as a formatted table
+knitr::kable(missing_summary, caption = "Missing Values Summary by Column")
+
+
+write.csv(missing_summary, file.path(processed_data_dir,"missing_values_summary.csv"))
+message("Missing values summary saved in processed folder.")
