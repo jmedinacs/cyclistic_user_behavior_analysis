@@ -1,137 +1,90 @@
 ---
-title: "Cleaning Log - Cyclistic Customer Behavior Analysis"
+title: "Cyclistic Rider Behavior Cleaning Report"
 author: "JohnPaul Medina"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
+source(here::here("simulation/simConfig.R"))
 knitr::opts_chunk$set(echo = TRUE)
 ```
-## Cleaning Log Introduction
-This cleaning log is a demonstration and report of all the cleaning steps that 
-were done to the dataset in the fulfillment of this analysis project.  
-**NOTE: The scripts are loading the most up to date dataset, thus the 
-verification and modification of the data are already reflected.**
 
+## Introduction
+Data cleaning is a critical step in any data analysis project. The accuracy and reliability of insights depend on the quality of the underlying data.    
 
-## Config.R
-This script was created to create a central location for loading libraries
-and assigning variables for quick reference and access. 
-```{r config.R, include = FALSE }
-# Load required packages
-library(here)
-library(tidyverse)
-library(ggplot2)
-library(dplyr)
-library(knitr)
-library(lubridate)
+> **Project Documentation**:  
+> View the full **cleaning, EDA, and changelog logs**  
+> [Click here](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)
 
-# Define base project directory, location of config.R considered base location
-project_dir <- here::here()
+## Initial Dataset Exploration and Verification
+* This script is written as introductory exploration of datasets for familiarity 
+and understanding.
+* After initial exploration, the script checks if every column in every dataset 
+contains the same column name. 
+* Finally, the script checks if all of the corresponding columns of every
+dataset is of the same data type.
 
-# Define paths for raw and processed data
-data_dir <- file.path(project_dir, "data")
-raw_data_dir <- file.path(data_dir, "raw")
-processed_data_dir <- file.path(data_dir, "processed")
+### Initial view of first dataset
+To familiarize ourselves with the dataset structure, we first load a single file 
+to examine its column names and data types.
+```{r initial dataset exploration 1}
+# Load the first dataset for initial survey of column characteristics
+jan_2024 <- read.csv(file.path(sim_raw_data_dir,"202401-divvy-tripdata.csv"))
 
-# Define paths for scripts, reports, and outputs
-scripts_dir <- file.path(project_dir, "scripts")
-reports_dir <- file.path(project_dir, "reports")
-output_dir <- file.path(project_dir, "output")
-
-# Create directories if they don’t exist
-dir.create(raw_data_dir, showWarnings = FALSE, recursive = TRUE)
-dir.create(processed_data_dir, showWarnings = FALSE, recursive = TRUE)
-dir.create(scripts_dir, showWarnings = FALSE, recursive = TRUE)
-dir.create(reports_dir, showWarnings = FALSE, recursive = TRUE)
-dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-
-# Define paths for processed dataset storage
-combined_raw_data_file <- file.path(processed_data_dir, "cyclistic_combined_raw.rds")
-cleaned_data_csv <- file.path(processed_data_dir, "cyclistic_cleaned.csv")
-cleaned_data_rds <- file.path(processed_data_dir, "cyclistic_cleaned.rds")
-cleaned_data_file <- file.path(processed_data_dir, "cyclistic_cleaned.csv")
-
-# Define analysis parameters
-time_bin_size <- 2  # Bin time-of-day into 2-hour intervals
-timezone = "America/Chicago"
-
-# Debug flag for printing directory paths
-show_paths <- FALSE  # Set to TRUE to print paths
-
-if (show_paths) {
-  print(paste("Project Directory:", project_dir))
-  print(paste("Raw Data Directory:", raw_data_dir))
-  print(paste("Processed Data Directory:", processed_data_dir))
-  print(paste("Scripts Directory:", scripts_dir))
-  print(paste("Reports Directory:", reports_dir))
-  print(paste("Output Directory:", output_dir))
-}
-
-```
-
-## Initial Dataset Exploration
-This section of the cleaning process was done to:  
-1. Initial evaluation of the data, the columns, and column data types.  
-2. After data structure familiarization, each of the dataset from January 2024 
-to January 2025 were checked for column name consistency. 
-3. After ensuring that every dataset contains the same column name, the next 
-action done is to check if all the columns have consistent data type across all 
-the datasets.
-### First Look at the Dataset
-```{r Explore Jan 2024 Dataset}
-# Load the first dataset
-jan_2024 <- read.csv(file.path(raw_data_dir,"202401-divvy-tripdata.csv"))
-
-#Display the column names and their respective data types.
+# Display the column names and their respective data types. 
 str(jan_2024)
-
 ```
-### Column Name Check
-This chunk comfirms that all the column names across all dataset ahve consistent 
-names.
-```{r Check Column Names Across All Dataset}
-# Function that checks if all the column names are exactly the same
+### Check Column Name Consistency Across Datasets
+Each dataset spans 13 months (Jan 2024 - Jan 2025). Before merging, we must 
+verify that all datasets contain identical column names to prevent mismatches.
+```{r Column name consistency check}
 check_column_names <- function(directory){
   # Compile all the raw dataset into a list
-  raw_files <- list.files(path = raw_data_dir, pattern = "*.csv",
+  raw_files <- list.files(path=sim_raw_data_dir, pattern = "*.csv",
                           full.names = TRUE)
   # Read the column names for each file
   column_names_list <- lapply(raw_files, 
                               function(file) colnames(read.csv(file, nrows=1)))
   
   # Check if all datasets have the same column names
-  # unique function removes all duplicates except for the first one.
+  # Unique function removes all duplicates except for the first one.
   unique_columns <- unique(column_names_list)
   
-  if(length(unique_columns) == 1){ # If all are matching, only 1 left in the list
-    print(" All datasets have consistent column names.")
+  # If there is only one left in the list, then all column names match
+  if(length(unique_columns)==1){
+    print("All datasets have consistent column names.")
   }else{
     print("Column name mismatch found!")
-    print(unique_columns) # prints the unique columns
+    # Print each unique column set separately for clarity
+    for(i in seq_along(unique_columns)){
+      cat("\nUnique Column Set",i,":\n")
+      print(unique_columns[[i]])
+    }
   }
 }
 # Call the function
-check_column_names(raw_data_dir)
+check_column_names(sim_raw_data_dir)
+
 ```
-### Column Data Type Check
-This chunk confirms that all the columns in every dataset have the same 
-corresponding data types.
-```{r Column Data Type Check}
-# This function checks if all the data types in each column of every dataset
-# is the same type. This will print the mismatched data types if found. 
-check_data_types <- function(directory) {
-  # List all CSV files
-  files <- list.files(path = directory, pattern = "*.csv", full.names = TRUE)
+
+### Check Consistent Column Data Type
+Ensuring each column retains the same data type across all datasets prevents 
+compatibility issues when merging.
+```{r Column data type check}
+# This function checks if all the data types of corresponding columns in each
+# of the datasets are the same.
+check_data_types <- function(directory){
+  # List of all csv files
+  files <- list.files(path=directory, pattern = "*.csv", full.names=TRUE)
   
   # Read and check column data types for each file
-  data_types_list <- lapply(files, function(file) {
-    df <- read.csv(file, na.strings = c("", "NA"))  # Treat empty strings as NA
-    sapply(df, class)  # Get data types
+  data_types_list <- lapply(files, function(file){
+    df <- read.csv(file, na.strings = c("","NA")) # Treat empty strings as NA
+    sapply(df,class) # Get the data types
   })
   
-  # Check if all datasets have consistent data types
+  # Check if all the datasets have consistent data types
   unique_data_types <- unique(data_types_list)
   
   if (length(unique_data_types) == 1) {
@@ -141,151 +94,8 @@ check_data_types <- function(directory) {
     print(unique_data_types)
   }
 }
-
 # Run the function
-check_data_types(raw_data_dir)
+check_data_types(sim_raw_data_dir)
 ```
-## Combining the Datasets and Setting Missing Data to NA
-The chunk combines all the dataset into one dataset while also ensuring that 
-every missing data is set to NA for consistency and data accuracy when the
-analysis work begins.  
-As seen in the output, the head and tail of the combined dataset shows data from 
-January 2024 and January 2025.
-```{r Combine Datasets and Set Missing Data to NA}
-# List all csv files from raw_data_dir
-raw_files <- list.files(path = raw_data_dir, pattern = "*.csv", 
-                        full.names = TRUE)
-
-# Read all the files and replace empty data into NA
-cyclistic_combined_raw <- lapply(raw_files, function(file){
-  df <- read.csv(file, na.strings = c("", "NA"))  # Convert "" and "NA" to NA
-  return(df)
-})
-
-# Combine all datasets into one dataset
-combined_dataset <- bind_rows(cyclistic_combined_raw)
-
-# Script for saving data as RDS and CSV removed to avoid overwriting the 
-# current data.
-
-# Checking the head and tail to show the combined data
-head(combined_dataset)
-tail(combined_dataset)
-
-
-```
-
-## Convert Character Dates to POSIXct
-The `started_at` and `ended_at` columns are character data, to facilitate 
-computation for analysis, these columns are converted into POSIXct.
-```{r Date Conversion}
-# CLEANING_convert_character_dates_to_posixct
-# THis script will convert the started_at and ended_at columns from character 
-# to POSIXct to facilitate computation. 
-
-# Load the raw data
-raw_combined_data <- readRDS(combined_raw_data_file)
-
-convert_dates <- function(df){
-  df$started_at <- ymd_hms(df$started_at, tz = timezone)
-  df$ended_at <- ymd_hms(df$ended_at, tz = timezone)
-  return(df)
-}
-
-# Apply the function
-processed_data <- convert_dates(raw_combined_data)
-
-# Check if conversion was successful
-str(processed_data$started_at)
-str(processed_data$ended_at)
-
-# Script for saving the cleaned dataset is removed to avoid overwriting the 
-# project's current progress.
-```
-## Check for Missing Values for Each Column
-The next step is to check for missing values in each column. This is an 
-essential step in verifying data completeness and integrity.  
-#### Evaluation
-The chunk shows that about **20%** of the data contains missing 
-start_station_id, start_station_name, end_station_name, and end_station_id. This 
-amount of data is **not negligible**, fortunately, the absence of these 
-information will not hinder our analysis of the `ride_duration`, so these data 
-were not removed from the analysis pool. 
-```{r Count Missing Data by Column}
-# CLEANING_check_missing_values_per_column
-# This script functions as a way to explore the data by tracking which 
-# columns have missing data. 
-
-# Load the most current version of the cleaned_data_rds to ensure accuracy
-df <- readRDS(cleaned_data_rds)
-
-# Function that counts the missing values per column
-missing_values_summary <- function(df) {
-  missing_counts <- sapply(df, function(x) sum(is.na(x)))
-  
-  # Convert it to a data frame for better readability
-  missing_summary <- data.frame(Column = names(missing_counts),
-                                Missing_Count = missing_counts)
-  
-  # Sort by highest missing values first
-  missing_summary <- missing_summary[order(-missing_summary$Missing_Count),]
-  
-  return(missing_summary)
-}
-
-missing_summary <- missing_values_summary(df)
-
-print(missing_summary)
-```
-## Computing and Adding the `ride_duration` Column
-To gain an insight on casual and annual member behavior and usage, it is 
-necessary to analyze their corresponding `ride_duration`. Since there are no 
-missing `started_at` and `ended_at` data, all of the `ride_duration` rows 
-will have a corresponding value.
-```{r ride_duration Column}
-# CLEANING_ride_duration_column
-# This script will compute the ride duration based on started_at and 
-# ended_at POSIXct values and add a column. 
-
-# Load the most current version of the cleaned_data_rds to ensure accuracy
-cleaned_data <- readRDS(cleaned_data_rds)
-
-# Function that calculates the ride duration in terms of minutes
-calculate_ride_duration <- function(df){
-  df$ride_duration <- as.numeric(difftime(df$ended_at, df$started_at,
-                                          units="mins"))
-  
-  # Flag invalid duration of negative or zero minutes
-  df$invalid_duration <- df$ride_duration <=0
-  
-  # Count the number of flagged rows
-  num_invalid <- sum(df$invalid_duration)
-  
-  cat("Found", num_invalid, "rides with invalid durations(<=0 minutes.\n")
-  cat("invalid rides flagged but not removed. \n")
-  
-  return(df)
-}
-
-# Use the function
-cleaned_dataset <- calculate_ride_duration(cleaned_data)
-
-str(cleaned_data)
-
-# Script for saving the new cleaned_dataset is removed to avoid overwriting
-# current cleaned dataset progress. 
-
-```
-### `ride_duration` Summary
-The initial look at the `ride_duration` summary shows that there are 
-negative time duration and unusually high positive time duration. This shows 
-that further investigation of the `time_duration` data is necessary to filter 
-erroneous, invalid, and outlier data. 
-```{r Time Duration Summary}
-summary(raw_combined_data$ride_duration)
-```
-
-
-
 
 

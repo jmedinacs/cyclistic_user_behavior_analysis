@@ -1,8 +1,12 @@
-# CLEANING_initial_dataset_exploration
+# 01_cleaning_initial_dataset_exploration
 # This script is written as introductory exploration of datasets for familiarity 
 # and understanding.
+# After initial exploration, the script checks if every column in every dataset 
+# contains the same column name. 
+# Finally, the script checks if all of the corresponding columns of every
+# dataset is of the same data type.
 
-# Load configurations and variables.
+# Load libraries and variables. 
 source("config.R")
 
 # Load the first dataset
@@ -30,11 +34,16 @@ check_column_names <- function(directory){
     print(" All datasets have consistent column names.")
   }else{
     print("Column name mismatch found!")
-    print(unique_columns) # prints the unique columns
+    # Print each unique column set separately for clarity
+    for (i in seq_along(unique_columns)) {
+      cat("\nUnique Column Set", i, ":\n")
+      print(unique_columns[[i]])
+    }
   }
 }
 # Call the function
 check_column_names(raw_data_dir)
+
 
 
 # This function checks if all the data types in each column of every dataset
