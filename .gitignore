@@ -6,6 +6,10 @@ data/**/*.csv  # Ignore all CSV files only inside data/
 data/processed/
 logs/
 
+# Ignore simulation folder that contains simulation steps to recreate the project for cleaning and eda markdowns
+simulation/
+
+
 # Ignore system files
 .DS_Store
 Thumbs.db
