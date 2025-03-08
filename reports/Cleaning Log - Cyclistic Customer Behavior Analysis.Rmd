@@ -5,19 +5,33 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+
 ```{r setup, include=FALSE}
 source(here::here("simulation/simConfig.R"))
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ## Introduction
-Data cleaning is a critical step in any data analysis project. The accuracy and reliability of insights depend on the quality of the underlying data.    
+Data cleaning is a critical step in any data analysis project. The accuracy and 
+reliability of insights depend on the quality of the underlying data.  
+
+This simulation of the full process is done in a parallel process using a 
+simulation folder to show the cleaning process described in this document 
+without overwriting the current version of the project's cleaned dataset.
+
+---
+
 
 > **Project Documentation**:  
 > View the full **cleaning, EDA, and changelog logs**  
 > [Click here](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)
 
-## Initial Dataset Exploration and Verification
+
+---
+
+
+## Part 1: Initial Dataset Exploration and Verification
 * This script is written as introductory exploration of datasets for familiarity 
 and understanding.
 * After initial exploration, the script checks if every column in every dataset 
@@ -25,20 +39,25 @@ contains the same column name.
 * Finally, the script checks if all of the corresponding columns of every
 dataset is of the same data type.
 
+
 ### Initial view of first dataset
 To familiarize ourselves with the dataset structure, we first load a single file 
 to examine its column names and data types.
-```{r initial dataset exploration 1}
+
+```{r initial-dataset-exploration}
 # Load the first dataset for initial survey of column characteristics
 jan_2024 <- read.csv(file.path(sim_raw_data_dir,"202401-divvy-tripdata.csv"))
 
 # Display the column names and their respective data types. 
 str(jan_2024)
 ```
+
+
 ### Check Column Name Consistency Across Datasets
 Each dataset spans 13 months (Jan 2024 - Jan 2025). Before merging, we must 
 verify that all datasets contain identical column names to prevent mismatches.
-```{r Column name consistency check}
+
+```{r column-name-consistency-check}
 check_column_names <- function(directory){
   # Compile all the raw dataset into a list
   raw_files <- list.files(path=sim_raw_data_dir, pattern = "*.csv",
@@ -68,10 +87,12 @@ check_column_names(sim_raw_data_dir)
 
 ```
 
+
 ### Check Consistent Column Data Type
 Ensuring each column retains the same data type across all datasets prevents 
 compatibility issues when merging.
-```{r Column data type check}
+
+```{r column-data-type-check}
 # This function checks if all the data types of corresponding columns in each
 # of the datasets are the same.
 check_data_types <- function(directory){
@@ -98,4 +119,39 @@ check_data_types <- function(directory){
 check_data_types(sim_raw_data_dir)
 ```
 
+
+---  
+
+
+## Part 2: Merging the Data and Setting Missing Values to NA
+This part merges the 13 monthly datasets into one combined dataset and setting 
+the missing values to NA for easier identification and to avoid errors in 
+computations during the analysis process.
+
+
+### Merging the Data and Setting Missing Values to NA
+After we have verified that the column names are consistent and that their 
+corresponding data types are matching, now we can merge the datasets into one.
+
+```{r merging-the-datasets-and-set-missing-values-to-NA}
+# Compile all csv file names  from the sim_raw_data_dir
+sim_raw_files <- list.files(path=sim_raw_data_dir,pattern="*.csv", 
+                            full.names=TRUE)
+
+# Read all CSV files, replace empty/missing data with NA, and combine into one dataset
+sim_combined_dataset <- bind_rows(lapply(sim_raw_files, function(file) {
+  read.csv(file, na.strings = c("", "NA"))  # Convert "" and "NA" to NA
+}))
+
+#Verify that the beginning of the combined dataset is Jan 2024
+head(sim_combined_dataset)
+# Verify that the tail of the combined dataset is Jan 2025
+tail(sim_combined_dataset)
+
+# Save an RDS version of the dataset for optimal loading and access
+saveRDS(sim_combined_dataset, file.path(sim_processed_data_dir, "sim_combined_raw_data.rds"))
+# Save a csv version of the dataset for sharing
+write.csv(sim_combined_dataset, 
+          file.path(sim_processed_data_dir, "sim_combined_raw_data.csv"),row.names = FALSE)
+```
 
