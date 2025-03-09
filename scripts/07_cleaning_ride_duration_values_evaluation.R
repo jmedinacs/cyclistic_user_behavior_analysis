@@ -1,164 +1,121 @@
-# CLEANING_EDA_analyze_ride_duration_to_make_cleaning_decision
-# This script evaluates the ride duration extremities to evaluate the presence 
-# of invalid and/or erroneous data. 
-# Focus is on evaluating ride duration under 1 minute and suspiciously long 
-# ride duration (800 minutes and over)
+# 07_cleaning_eda_analyze_ride_duration_to_make_cleaning_decision
+# --------------------------------------------------------------
+# This script evaluates the ride duration extremes to identify invalid or 
+# erroneous data. The focus is on:
+# 1. Ride durations under 1 minute (potential docking errors or short trips)
+# 2. Long ride durations (100+ minutes) to assess natural cutoffs
+# 3. Applying a final cleaning rule: Keeping only 0 < ride_duration < 1440
+# --------------------------------------------------------------
 
-# Step 1: Load configuration settings and dataset
+# Step 1: Load Configuration and Dataset
 source("config.R")
 cleaned_data <- readRDS(cleaned_data_rds) # Load the most current cleaned data
 
-# Step 2: Overview of Ride Duration data
-cat("\nChecking ride duration distribution...\n")
-str(cleaned_data) # Review the structure of the dataset
-summary(cleaned_data$ride_duration) # Check key statistics 
+# --------------------------------------------------------------
+# Step 2: Remove Invalid Ride Durations
+# --------------------------------------------------------------
+# - Exclude negative ride durations.
+# - Remove rides ≥1440 minutes, as Divvy considers them lost/stolen.
+# - Company policy states that rides not returned within 24 hours (1440 min)
+#   may be assessed a lost/stolen bike fee.
 
-# Step 3: Identify potential anomalies
-cat("\n Checking count of rides <= 0, <= 1, and <= 2 minutes...\n")
-cat("Total rides <= 0 min:", sum(cleaned_data$ride_duration <= 0),"\n")
-cat("Total rides <= 1 min:", sum(cleaned_data$ride_duration <= 1),"\n")
-cat("Total rides <= 2 min:", sum(cleaned_data$ride_duration <= 2),"\n")
+cleaned_data <- cleaned_data %>% 
+  filter(ride_duration > 0, ride_duration < 1440)
 
-# Step 4: Quantile analysis to identify outliers and data significance 
-cat("\nRide duration quantiles (90%-100%)...\n")
-print(quantile(cleaned_data$ride_duration, 
-               probs = c(0.90, 0.95, 0.99, 0.995,0.998,0.999, 1)))
-sum(cleaned_data$ride_duration > 800)
+# Save the cleaned dataset after applying the exclusion rule
+saveRDS(cleaned_data, file = cleaned_data_rds)
+cat("\nUpdated cleaned dataset successfully saved!\n")
 
+# --------------------------------------------------------------
+# Step 3: Investigate Short Rides (0 < ride_duration < 1)
+# --------------------------------------------------------------
+# - Count the total number of rides ≤ 1 minute
+# - Identify how many have the same start and end station (potential errors)
+# - Remove these short rides where start & end station are identical
 
-cat("\nRide duration quantiles (1%-5%)...\n")
-print(quantile(cleaned_data$ride_duration, 
-               probs = c(0.01, 0.02, 0.03, 0.04, .05)))
+cat("\nTotal rides ≤ 1 min:", sum(cleaned_data$ride_duration <= 1), "\n")
 
-# Step 5: Visualizing Ride Duration distributions
-cat("\n Plotting ride duration histograms...\n")
+summary(cleaned_data$ride_duration[cleaned_data$ride_duration <= 1])
 
-# Full dataset histogram
-hist(cleaned_data$ride_duration,
-     breaks= 100,
-     main = "Ride Duration Distribution (Full Dataset)",
-     col = "skyblue",
-     border = "black",
-     xlab = "Ride Duration (minutes",
-     ylab = "Ride Count")
+# Count short rides where start & end station are the same
+same_station_rides <- sum(cleaned_data$start_station_id[cleaned_data$ride_duration <= 1] == 
+                            cleaned_data$end_station_id[cleaned_data$ride_duration <= 1], na.rm=TRUE)
 
-# Short rides (0-10 minutes)
-hist(cleaned_data$ride_duration[cleaned_data$ride_duration > 0 & cleaned_data$ride_duration <= 10],
-     breaks = seq(0, 10, 0.5),
-     main = "Short Ride Duration Distribution (0-10 min)",
-     xlab = "Ride Duration (half-minute interval)",
-     ylab = "Count of Rides",
-     col = "skyblue",
-     border = "black")    
-
-# Long rides (>100 minutes)
-hist(cleaned_data$ride_duration[cleaned_data$ride_duration > 100],
-     breaks = 100,
-     main = "Long Ride Duration Distribution (>100 min)",
-     xlab = "Ride Duration (minutes)",
-     ylab = "Count of Rides",
-     col = "skyblue",
-     border = "black")
-
-# Step 6: Investigate short rides (0 - 1 minute)
-cat("\nInvestigating short rides less than a minute...\n")
-short_rides <- cleaned_data %>% filter(ride_duration > 0 & ride_duration < 1)
-
-# Count rides with the same start & end station
-same_station_rides <- 
-  sum(short_rides$start_station_id == short_rides$end_station_id, na.rm=TRUE)
-
-# Identify short rides with missing start station id, end station id, or both
-only_missing_start <- 
-  sum(is.na(short_rides$start_station_id) & !is.na(short_rides$end_station_id))
-only_missing_end <- 
-  sum(!is.na(short_rides$start_station_id) & is.na(short_rides$end_station_id))
-missing_both <- 
-  sum(is.na(short_rides$start_station_id) & is.na(short_rides$end_station_id))
-
-# Print findings
-cat("\nBreakdown of Missing Station Data for Short Rides (0-1 min):\n")
-cat("Total short rides (0-1 min):", nrow(short_rides), "\n")
 cat("Short rides where start & end station are the same:", same_station_rides, "\n")
-cat("Short rides missing ONLY start station ID:", only_missing_start, "\n")
-cat("Short rides missing ONLY end station ID:", only_missing_end, "\n")
-cat("Short rides missing BOTH start & end station IDs:", missing_both, "\n")
 
-# Validate: Check if the three categories add up to the number of missing cases
-total_missing_any <- only_missing_start + only_missing_end + missing_both
-cat("\nTotal Short Rides with Any Missing Station Data:", total_missing_any, "\n")
-cat("Percentage of Short Rides with Any Missing Station Data:", 
-    round((total_missing_any / nrow(short_rides)) * 100, 2), "%\n")
+# Remove short rides where start & end station are the same (excluding NAs)
+removed_short_rides <- sum(cleaned_data$start_station_id == cleaned_data$end_station_id & 
+                             !is.na(cleaned_data$start_station_id) & 
+                             cleaned_data$ride_duration <= 1, na.rm = TRUE)
 
+cat("Total short rides removed:", removed_short_rides, "\n")
 
-# Step 6B: Count Rides Over Different Long Duration Thresholds
-cat("\nCounting long rides beyond certain duration thresholds...\n")
-cat("Rides > 500 minutes:", sum(cleaned_data$ride_duration > 500), "\n")
-cat("Rides > 800 minutes:", sum(cleaned_data$ride_duration > 800), "\n")
-cat("Rides > 1000 minutes:", sum(cleaned_data$ride_duration > 1000), "\n")
-cat("Rides > 1500 minutes:", sum(cleaned_data$ride_duration > 1500), "\n")
+# Save dataset after short ride cleaning step
+saveRDS(cleaned_data, file = cleaned_data_rds)
+cat("\nUpdated cleaned dataset successfully saved!\n")
 
+# --------------------------------------------------------------
+# Step 4: Investigate Long Rides (≥100 Minutes)
+# --------------------------------------------------------------
+# - Count rides ≥100 minutes
+# - Analyze distribution using quantiles
+# - Create a histogram to visualize long rides
 
-# Step 6C: Quantile Analysis to Identify Outliers in Long Rides
-cat("\nChecking ride duration quantiles to justify long ride cutoff...\n")
+long_rides_count <- sum(cleaned_data$ride_duration >= 100)
+cat("Total rides ≥ 100 minutes:", long_rides_count, "\n")
+
+total_rides <- nrow(cleaned_data)
+cat("Total rides in the dataset:", total_rides, "\n")
+
+# Analyze ride duration quantiles for long rides (90th to 100th percentile)
+cat("\nRide duration quantiles for long rides (90%-100%)...\n")
 print(quantile(cleaned_data$ride_duration, 
                probs = c(0.90, 0.95, 0.99, 0.995, 0.998, 0.999, 1)))
 
+# Histogram of long ride durations (100+ min)
+ggplot(cleaned_data %>% filter(ride_duration >= 100), aes(x = ride_duration)) +
+  geom_histogram(binwidth = 10, fill = "red") +
+  xlim(100, 1440) +
+  labs(title = "Long Ride Duration Distribution (≥100 min)", 
+       x = "Ride Duration (mins)", y = "Count")
 
-# Step 6D: Histogram of Long Ride Durations
-cat("\nVisualizing long ride duration distribution...\n")
-hist(cleaned_data$ride_duration[cleaned_data$ride_duration > 100],
-     breaks = 100,
-     main = "Long Ride Duration Distribution (>100 min)",
-     xlab = "Ride Duration (minutes)",
-     ylab = "Count of Rides",
-     col = "skyblue",
-     border = "black")
+# --------------------------------------------------------------
+# Step 5: Investigate Long Rides by User Type
+# --------------------------------------------------------------
+# - Compare the number of long rides between casual and member riders.
+# - Check if members have different ride duration patterns than casuals.
 
+long_rides_by_user <- cleaned_data %>%
+  filter(ride_duration >= 100) %>%
+  group_by(member_casual) %>%
+  summarize(count_long_rides = n())
 
-# Step 6E: Investigate long rides (800 minutes and greater)
-cat("\nInvestigating long rides (>800)...\n")
-long_rides <- cleaned_data %>%  filter(ride_duration > 800)
+print(long_rides_by_user)
 
-# Count rides with the same start and end station
-same_station_long_rides <- sum(long_rides$start_station_id == 
-                                long_rides$end_station_id, na.rm=TRUE)
+# --------------------------------------------------------------
+# Step 6: Quantile Analysis by User Type
+# --------------------------------------------------------------
+# - Identify the distribution of long rides for casual vs. member riders.
+# - Check if casual riders tend to have longer rides than members.
 
-# Count rides with missing station IDS
-only_missing_start_long <- 
-  sum(is.na(long_rides$start_station_id) & !is.na(long_rides$end_station_id))
-only_missing_end_long <- 
-  sum(!is.na(long_rides$start_station_id) & is.na(long_rides$end_station_id))
-missing_both_long <- 
-  sum(is.na(long_rides$start_station_id) & is.na(long_rides$end_station_id))
+long_ride_quantiles <- cleaned_data %>%
+  filter(ride_duration >= 100) %>%
+  group_by(member_casual) %>%
+  summarise(
+    p90 = quantile(ride_duration, 0.90),
+    p95 = quantile(ride_duration, 0.95),
+    p99 = quantile(ride_duration, 0.99),
+    p995 = quantile(ride_duration, 0.995),
+    p998 = quantile(ride_duration, 0.998),
+    p999 = quantile(ride_duration, 0.999),
+    max = max(ride_duration)
+  )
 
-# Validate: These three categories should sum up to total missing cases
-total_missing_any_long <- only_missing_start_long + only_missing_end_long + missing_both_long
+print(long_ride_quantiles)
 
-# Print findings
-cat("\nBreakdown of Missing Station Data for Long Rides (>800 min):\n")
-cat("Total rides over 800 minutes:", nrow(long_rides), "\n")
-cat("Long rides where start & end station are the same:", 
-    same_station_long_rides, "\n")
-cat("Long rides missing ONLY start station ID:", 
-    only_missing_start_long, "\n")
-cat("Long rides missing ONLY end station ID:", 
-    only_missing_end_long, "\n")
-cat("Long rides missing BOTH start & end station IDs:", 
-    missing_both_long, "\n")
-cat("\nTotal Long Rides with Any Missing Station Data:", 
-    total_missing_any_long, "\n")
-cat("Percentage of Long Rides with Any Missing Station Data:", 
-    round((total_missing_any_long / nrow(long_rides)) * 100, 2), "%\n")
-
-
-# Step 7: Apply Ride Duration Filtering (Final Cleaned Data)
-cat("\nApplying final ride duration filter to create the new cleaned dataset...\n")
-cleaned_data <- cleaned_data %>% filter(ride_duration > 1, ride_duration <= 800)
-
-# Step 8: Save the Official Cleaned Dataset
-saveRDS(cleaned_data, file = cleaned_data_rds)
-write.csv(cleaned_data, file = cleaned_data_csv, row.names = FALSE)
-
-cat("\nFinal cleaned dataset successfully saved!\n")
-
+# --------------------------------------------------------------
+# Final Notes:
+# - The dataset now only contains rides where 0 < ride_duration < 1440.
+# - Short rides (<= 1 min) with the same start & end station have been removed.
+# - Long rides have been analyzed for distribution and user type differences.
+# --------------------------------------------------------------
