@@ -1,7 +1,7 @@
-# CLEANING_trim_spaces_on_char_columns
+# 05_cleaning_trim_spaces_on_char_columns
 # Remove starting, trailing, and repeated white spaces in the char columns.
 
-# LOad configurations and variables.
+# Load configurations and variables.
 source("config.R")
 
 # Load cleaned dataset
@@ -19,6 +19,6 @@ df$member_casual <- tolower(df$member_casual)
 
 # Save the final cleaned dataset
 saveRDS(df, file = cleaned_data_rds)
-write.csv(df, file = cleaned_data_csv, row.names = FALSE)
 
-cat("\nFinal Cleaning Step Completed: Trimmed whitespace & standardized text columns.\n")
+
+cat("\nCleaning Step Completed: Trimmed whitespace & standardized text columns.\n")

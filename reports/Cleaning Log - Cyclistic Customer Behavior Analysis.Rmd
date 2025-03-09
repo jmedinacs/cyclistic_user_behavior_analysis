@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ## Introduction
+
 Data cleaning is a critical step in any data analysis project. The accuracy and 
 reliability of insights depend on the quality of the underlying data.  
 
@@ -32,6 +33,7 @@ without overwriting the current version of the project's cleaned dataset.
 
 
 ## Part 1: Initial Dataset Exploration and Verification
+
 * This script is written as introductory exploration of datasets for familiarity 
 and understanding.
 * After initial exploration, the script checks if every column in every dataset 
@@ -41,6 +43,7 @@ dataset is of the same data type.
 
 
 ### Initial view of first dataset
+
 To familiarize ourselves with the dataset structure, we first load a single file 
 to examine its column names and data types.
 
@@ -54,6 +57,7 @@ str(jan_2024)
 
 
 ### Check Column Name Consistency Across Datasets
+
 Each dataset spans 13 months (Jan 2024 - Jan 2025). Before merging, we must 
 verify that all datasets contain identical column names to prevent mismatches.
 
@@ -89,6 +93,7 @@ check_column_names(sim_raw_data_dir)
 
 
 ### Check Consistent Column Data Type
+
 Ensuring each column retains the same data type across all datasets prevents 
 compatibility issues when merging.
 
@@ -124,12 +129,14 @@ check_data_types(sim_raw_data_dir)
 
 
 ## Part 2: Merging the Data and Setting Missing Values to NA
+
 This part merges the 13 monthly datasets into one combined dataset and setting 
 the missing values to NA for easier identification and to avoid errors in 
 computations during the analysis process.
 
 
 ### Merging the Data and Setting Missing Values to NA
+
 After we have verified that the column names are consistent and that their 
 corresponding data types are matching, now we can merge the datasets into one.
 
@@ -159,6 +166,7 @@ write.csv(sim_combined_dataset,
 ---
 
 ## Part 3: Converting `started_at` and `ended_at` Character Dates into POSIXct
+
 Based on our exploration and analysis, the `started_at` and `ended_at` columns 
 of the dataset are in `character` format. We need to convert them into `POSIXct` 
 format to facilitate computation of **time** specific values. 
@@ -196,11 +204,13 @@ message("RDS file saved successfully: processed_combined_data_posixct.rds")
 ---
 
 ## Part 4: Check and Count Missing Values per Column
+
 Checking for missing values in the dataset by column. Missing values can skew 
 the result of data use and interpretation; thus, understanding what data are 
 missing and making a decision on how to handle them is important.
 
 ### Initial Analysis and Plan
+
 The highest number of missing values is **1,128,726** which represents about 
 20% of the entire datase. Further investigation is needed to determine how this 
 affects the project's objectives and how this may be handled.
@@ -240,4 +250,91 @@ write.csv(sim_missing_summary, file.path(sim_processed_data_dir,
 message("Missing values summary saved in processed folder.")
 
 ```
+
+
+---
+
+## Step 5: Trim Whitespace and Ensure `member_casual` Data are Lower Case
+
+Trimming whitespaces from character columns will ensure that each data are 
+unique in such a way that extra spaces do not create multiple instance of the 
+same value.  
+
+Ensuring that the `member_casual` column data are all in lower case prevents 
+data processing error because of accidental case discrepancy.
+
+```{r trim-whitespace-and-lower-case}
+# Load most recent simulation cleaned rds
+sim_cleaned_data <- 
+  readRDS(file.path(sim_processed_data_dir, 
+                    "processed_combined_data_posixct.rds"))
+
+# List character columns
+char_cols <- c("ride_id", "rideable_type", "start_station_name", 
+               "start_station_id", "end_station_name", "end_station_id", 
+               "member_casual")
+
+# Trim white spaces among character columns
+sim_cleaned_data[char_cols] <- lapply(sim_cleaned_data[char_cols], trimws)
+
+# Ensure that member_casual column data are all in lower case
+sim_cleaned_data$member_casual <- tolower(sim_cleaned_data$member_casual)
+
+message("Character columns whitespaces removed, casual_member column standardized.")
+
+# Save processed data as RDS, given specific name for this simulation
+saveRDS(sim_cleaned_data, 
+        file.path(sim_processed_data_dir,"trimmed_sim_cleaned_data.rds"))
+
+message("RDS file saved successfully: trimmed_sim_cleaned_data.rds")
+
+```
+
+---
+
+## Step 6: Compute and Create the `ride_duration` Column and Flag Invalid Rides
+
+One of the main focus of this analysis is determining the differences between 
+**casual and member riding patterns**. Creating the `ride_duration` column is 
+essential as it will be used throughout the exploratory data analysis (EDA) 
+process. 
+
+```{r compute-ride-duration-and-flag-invalid-duration}
+# Load the most current simulation data
+sim_cleaned_data <- 
+  readRDS(file.path(sim_processed_data_dir,"trimmed_sim_cleaned_data.rds"))
+
+# Function that calculates the ride duration in terms of minutes
+calculate_ride_duration <- function(df){
+  df$ride_duration <- as.numeric(difftime(df$ended_at, df$started_at, 
+                                          units="mins"))
+  
+  # Flag invalid data (zero and negative)
+  df$invalid_duration <- df$ride_duration <= 0
+  
+  # Count the number of flagged invalid rows
+  num_invalid <- sum(df$invalid_duration)
+  
+  cat("Found", num_invalid, "rides with invalid durations(<=0 minutes.\n")
+  cat("invalid rides flagged but not removed. \n")
+  
+  return(df)
+}
+
+# Call the function
+sim_cleaned_dataset <- calculate_ride_duration(sim_cleaned_data)
+
+# Save processed data as RDS, given specific name for this simulation
+saveRDS(sim_cleaned_dataset, 
+        file.path(sim_processed_data_dir,"sim_ride_duration_cleaned_data.rds"))
+
+message("RDS file saved successfully: sim_ride_duration_cleaned_data.rds")
+```
+### `ride_duration` Initial Note
+
+`ride_duration` contains negative and zero values, further investigation is 
+needed to check suspicious large values and data integrity of rides that are 
+zero to one minute. Exploratory analysis of ride_duration is necessary to 
+determine if there are data that should be excluded from the analysis moving 
+forward.
 

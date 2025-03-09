@@ -1,4 +1,4 @@
-# CLEANING_ride_duration_column
+# 06_cleaning_ride_duration_column
 # This script will compute the ride duration based on started_at and 
 # ended_at POSIXct values and add a column. 
 
@@ -14,7 +14,7 @@ calculate_ride_duration <- function(df){
                                           units="mins"))
   
   # Flag invalid duration of negative or zero minutes
-  df$invalid_duration <- df$ride_duration <=0
+  df$invalid_duration <- df$ride_duration <= 0
   
   # Count the number of flagged rows
   num_invalid <- sum(df$invalid_duration)
@@ -28,10 +28,15 @@ calculate_ride_duration <- function(df){
 # Use the function
 cleaned_dataset <- calculate_ride_duration(cleaned_data)
 
+# Verify that ride_duration and invalid_duration values are correct
+head(cleaned_dataset)
+
+# Verify ride_duration and invalid_duration data type.
+str(cleaned_dataset)
+
 # Save an RDS version using config.R variable
 saveRDS(cleaned_dataset, file = cleaned_data_rds)
 
-# Save a CSV version dynamically
-write.csv(combined_dataset, 
-          file = sub(".rds", ".csv", cleaned_data_file), 
-          row.names = FALSE)
+message("Updated cleaned_data RDS has been saved.")
+
+

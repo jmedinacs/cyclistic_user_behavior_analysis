@@ -158,7 +158,7 @@ cleaned_data <- cleaned_data %>% filter(ride_duration > 1, ride_duration <= 800)
 
 # Step 8: Save the Official Cleaned Dataset
 saveRDS(cleaned_data, file = cleaned_data_rds)
-write.csv(cleaned_data, file = cleaned_data_csv, row.names = FALSE)
+
 
 cat("\nFinal cleaned dataset successfully saved!\n")
 
