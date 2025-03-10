@@ -6,18 +6,37 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-source("simulation/simConfig.R")
+library(here)
+setwd(here::here())  # Forces knitting to use project root
+source(here::here("simulation/simConfig.R"))
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Cleaning Log Introduction
 This cleaning log is a demonstration and report of all the cleaning steps that 
-were done to the dataset in the fulfillment of this analysis project.  
+were done to the dataset in the fulfillment of this analysis project. The dataset 
+consists of thirteen columns that make up a profile of each Divvy Bikes Chicago 
+bike rental ride. The project's goal is to gain an insight on the differences 
+in the behavior of casual riders versus member riders in order to make 
+data-driven recommendations on how to encourage casual riders to become members.
 
 NOTE: The script shown are the simulation version, thus every saved RDS 
 pertains to that script/chunk to preserve the value at that specific point of 
 the project. In the live version, the most current version is always saved and 
 updated using the same file.
 
+## Detailed Spreadsheet Logs
+**View the full Cleaning Log, Changelog, and EDA Log here:**  
+[**Google Sheets: Cyclistic Data Cleaning & EDA Log**](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)  
+
+This document includes:  
+
+* **Cleaning Log** – Tracks transformations, missing data handling, and data validation.  
+* **Changelog** – Documents all modifications over time to ensure reproducibility.  
+* **EDA Log** – Summarizes key exploratory insights that guide the final analysis.  
+
+While this R Markdown file details the **programmatic approach**, the **Google Sheets log serves as an additional reference** for tracking **cleaning decisions manually**.
+
+---
 
 ## Initial Dataset Exploration
 This section of the cleaning process was done to:  
@@ -284,10 +303,7 @@ saveRDS(sim_cleaned_data,
 
 message("RDS file saved successfully: sim_ride_duration_cleaned_data.rds")
 
-
-# Use the function
-sim_cleaned_data <- calculate_ride_duration(sim_cleaned_data)
-
+# Check that the columns have been added
 str(sim_cleaned_data)
 ```
 ### `ride_duration` Summary
@@ -475,6 +491,7 @@ ggplot(sim_cleaned_data %>% filter(ride_duration >= 130), aes(x = ride_duration)
 * The dataset now only contains rides where 0 < ride_duration < 1440.
 * Short rides (<= 1 min) with the same start & end station have been removed.
 * Identified 130+ minutes as possible upper boundary. 
+
 
 
 

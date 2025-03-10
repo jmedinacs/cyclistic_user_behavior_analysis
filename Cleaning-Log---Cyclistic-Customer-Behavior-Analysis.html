@@ -11,9 +11,9 @@
 
 <meta name="author" content="JohnPaul Medina" />
 
-<meta name="date" content="2025-02-26" />
+<meta name="date" content="2025-03-09" />
 
-<title>Casual versus Annual Member Behavior Analysis Report</title>
+<title>Cleaning Log - Cyclistic Customer Behavior Analysis</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,78 +350,37 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Casual versus Annual Member Behavior
-Analysis Report</h1>
+<h1 class="title toc-ignore">Cleaning Log - Cyclistic Customer Behavior
+Analysis</h1>
 <h4 class="author">JohnPaul Medina</h4>
-<h4 class="date">2025-02-26</h4>
+<h4 class="date">2025-03-09</h4>
 
 </div>
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>This analysis explores usage patterns of Cyclistic’s bike-sharing
-service, aiming to uncover actionable insights that differentiate casual
-users from annual members. The goal is to support business strategies
-for increasing membership subscriptions.</p>
-<div id="objective" class="section level3">
-<h3>Objective:</h3>
-<ul>
-<li>Identify differences in usage behavior between casual riders and
-annual members.</li>
-<li>Provide recommendations to convert casual riders into long-term
-subscribers.</li>
-</ul>
+<div id="cleaning-log-introduction" class="section level2">
+<h2>Cleaning Log Introduction</h2>
+<p>This cleaning log is a demonstration and report of all the cleaning
+steps that were done to the dataset in the fulfillment of this analysis
+project.</p>
+<p>NOTE: The script shown are the simulation version, thus every saved
+RDS pertains to that script/chunk to preserve the value at that specific
+point of the project. In the live version, the most current version is
+always saved and updated using the same file.</p>
 </div>
-</div>
-<div id="business-problem" class="section level2">
-<h2>Business Problem</h2>
-<p>Cyclistic wants to increase its membership subscriptions. To support
-this goal, we need to analyze historical ride data and identify
-behavioral differences between casual riders and annual members.</p>
-<div id="business-task" class="section level3">
-<h3>Business Task:</h3>
-<blockquote>
-<p><strong>What key differences exist between casual riders and annual
-members, and how can we encourage casual riders to become annual
-members?</strong></p>
-</blockquote>
-</div>
-</div>
-<div id="data-source" class="section level2">
-<h2>Data Source</h2>
-<p>The dataset used for this project comes from <strong><a href="https://divvybikes.com/system-data">Divvy Bikes</a></strong>, a
-bike-share service operating in Chicago. The data is used in accordance
-with the <a href="https://divvybikes.com/data-license-agreement">Divvy
-Bikes Data License Agreement</a>.</p>
-<p>The data includes: - Ride ID, type of bike, and user category. -
-Timestamps for the start and end of each ride. - Starting and ending
-station locations, station ids, and names.</p>
-</div>
-<div id="data-cleaning-and-preparation" class="section level2">
-<h2>Data Cleaning and Preparation</h2>
-<p>Before performing any analysis, it is essential to: - Ensure data
-types are consistent across datasets. - Convert date-time columns into
-the appropriate format. - Identify and remove any inconsistencies, such
-as missing or duplicated entries.</p>
-<div id="initial-exploration-of-datasets" class="section level3">
-<h3>Initial Exploration of Datasets</h3>
-<ol style="list-style-type: decimal">
-<li>Load the January 2024 dataset and analyze the column names and data
-type using str()</li>
-<li>Create a function that reads each dataset and display all their
-column names.</li>
-<li>Create a function that checks and displays each column’s data
-type.</li>
-</ol>
-<div id="initial-check-of-january-2024-dataset" class="section level4">
-<h4>Initial check of January 2024 dataset</h4>
-<p>Here we see that there are 13 columns and their data types. Notice
-that the started_at and ended_at columns are <code>characters</code>
-instead of dates in <code>POSIXct</code> which is the data type that
-will let us compute ride duration information.</p>
+<div id="initial-dataset-exploration" class="section level2">
+<h2>Initial Dataset Exploration</h2>
+<p>This section of the cleaning process was done to:<br />
+1. Conduct an initial evaluation of the data, the columns, and column
+data types.<br />
+2. Check the column name consistency of all the datasets from Jan 2024
+to Jan 2025.<br />
+3. Check that the corresponding columns of each dataset are of the same
+data type.</p>
+<div id="first-look-at-the-dataset" class="section level3">
+<h3>First Look at the Dataset</h3>
 <pre class="r"><code># Load the first dataset
-jan_2024 &lt;- read.csv(file.path(raw_data_dir,&quot;202401-divvy-tripdata.csv&quot;))
+jan_2024 &lt;- read.csv(file.path(sim_raw_data_dir,&quot;202401-divvy-tripdata.csv&quot;))
 
 #Display the column names and their respective data types.
 str(jan_2024)</code></pre>
@@ -440,16 +399,14 @@ str(jan_2024)</code></pre>
 ##  $ end_lng           : num  -87.6 -87.6 -87.6 -87.6 -87.6 ...
 ##  $ member_casual     : chr  &quot;member&quot; &quot;member&quot; &quot;member&quot; &quot;member&quot; ...</code></pre>
 </div>
-<div id="checking-if-every-column-in-every-dataset-are-consistent-same" class="section level4">
-<h4>Checking if every column in every dataset are consistent (same)</h4>
-<p>Next step is to check if all of the column names of every column in
-every dataset are the same.<br />
-The result shows that all of the datasets have the same names through
-the use of the unique() function.</p>
-<pre class="r"><code># Funciton that checks if all the column names are exactly the same
+<div id="column-name-check" class="section level3">
+<h3>Column Name Check</h3>
+<p>This chunk comfirms that all the column names across all dataset have
+consistent names.</p>
+<pre class="r"><code># Function that checks if all the column names are exactly the same
 check_column_names &lt;- function(directory){
   # Compile all the raw dataset into a list
-  raw_files &lt;- list.files(path = raw_data_dir, pattern = &quot;*.csv&quot;,
+  raw_files &lt;- list.files(path = sim_raw_data_dir, pattern = &quot;*.csv&quot;,
                           full.names = TRUE)
   # Read the column names for each file
   column_names_list &lt;- lapply(raw_files, 
@@ -466,17 +423,14 @@ check_column_names &lt;- function(directory){
     print(unique_columns) # prints the unique columns
   }
 }
-# Call the function and provide the raw directory as the parameter
-check_column_names(raw_data_dir)</code></pre>
+# Call the function
+check_column_names(sim_raw_data_dir)</code></pre>
 <pre><code>## [1] &quot; All datasets have consistent column names.&quot;</code></pre>
 </div>
-<div id="check-if-all-the-columns-of-each-dataset-have-the-same-data-type" class="section level4">
-<h4>Check if all the columns of each dataset have the same data
-type</h4>
-<p>To ensure consistency across all datasets used in this analysis, we
-verified that each column maintains the same data type across files.
-Since missing values could affect type inference, they were explicitly
-set to NA to prevent inconsistencies.</p>
+<div id="column-data-type-check" class="section level3">
+<h3>Column Data Type Check</h3>
+<p>This chunk confirms that all the columns in every dataset have the
+same corresponding data types.</p>
 <pre class="r"><code># This function checks if all the data types in each column of every dataset
 # is the same type. This will print the mismatched data types if found. 
 check_data_types &lt;- function(directory) {
@@ -501,85 +455,612 @@ check_data_types &lt;- function(directory) {
 }
 
 # Run the function
-check_data_types(raw_data_dir)</code></pre>
+check_data_types(sim_raw_data_dir)</code></pre>
 <pre><code>## [1] &quot;All datasets have consistent data types.&quot;</code></pre>
+<hr />
 </div>
-<div id="combine-the-datasets-into-one-dataset-and-repalce-missing-values-with-na" class="section level4">
-<h4>Combine the datasets into one dataset and repalce missing values
-with NA</h4>
-<p>Now that the datasets have been verified, they are now combined into
-a <strong>single dataset</strong> and saved as an rds and a csv in the
-<code>processed</code> folder.<br />
-* The <strong>RDS format</strong> (.rds) is used for <strong>faster
-access and memory efficiency</strong> in R. * The <strong>CSV
-format</strong> (.csv) is also saved for reference and external use.</p>
-<pre class="r"><code># List all csv files from raw_data_dir
-raw_files &lt;- list.files(path = raw_data_dir, pattern = &quot;*.csv&quot;, 
-                        full.names = TRUE)
+</div>
+<div id="combining-the-datasets-and-setting-missing-data-to-na" class="section level2">
+<h2>Combining the Datasets and Setting Missing Data to NA</h2>
+<p>The chunk combines all the dataset into one dataset while also
+ensuring that every missing data is set to NA for consistency and data
+accuracy when the analysis work begins.</p>
+<p>As seen in the output, the head and tail of the combined dataset
+shows data from January 2024 and January 2025.</p>
+<pre class="r"><code># Compile all csv file names  from the sim_raw_data_dir
+sim_raw_files &lt;- list.files(path=sim_raw_data_dir,pattern=&quot;*.csv&quot;, 
+                            full.names=TRUE)
 
-# Read all the files and replace empty data into NA
-cyclistic_combined_raw &lt;- lapply(raw_files, function(file){
-  df &lt;- read.csv(file, na.strings = c(&quot;&quot;,&quot;NA&quot;)) # convert missing values to NA
+# Read all CSV files, replace empty/missing data with NA, and combine into one dataset
+sim_combined_dataset &lt;- bind_rows(lapply(sim_raw_files, function(file) {
+  read.csv(file, na.strings = c(&quot;&quot;, &quot;NA&quot;))  # Convert &quot;&quot; and &quot;NA&quot; to NA
+}))
+
+
+#Verify that the beginning of the combined dataset is Jan 2024
+head(sim_combined_dataset)</code></pre>
+<pre><code>##            ride_id rideable_type          started_at            ended_at         start_station_name
+## 1 C1D650626C8C899A electric_bike 2024-01-12 15:30:27 2024-01-12 15:37:59          Wells St &amp; Elm St
+## 2 EECD38BDB25BFCB0 electric_bike 2024-01-08 15:45:46 2024-01-08 15:52:59          Wells St &amp; Elm St
+## 3 F4A9CE78061F17F7 electric_bike 2024-01-27 12:27:19 2024-01-27 12:35:19          Wells St &amp; Elm St
+## 4 0A0D9E15EE50B171  classic_bike 2024-01-29 16:26:17 2024-01-29 16:56:06     Wells St &amp; Randolph St
+## 5 33FFC9805E3EFF9A  classic_bike 2024-01-31 05:43:23 2024-01-31 06:09:35 Lincoln Ave &amp; Waveland Ave
+## 6 C96080812CD285C5  classic_bike 2024-01-07 11:21:24 2024-01-07 11:30:03          Wells St &amp; Elm St
+##   start_station_id          end_station_name end_station_id start_lat start_lng  end_lat   end_lng
+## 1     KA1504000135  Kingsbury St &amp; Kinzie St   KA1503000043  41.90327 -87.63474 41.88918 -87.63851
+## 2     KA1504000135  Kingsbury St &amp; Kinzie St   KA1503000043  41.90294 -87.63444 41.88918 -87.63851
+## 3     KA1504000135  Kingsbury St &amp; Kinzie St   KA1503000043  41.90295 -87.63447 41.88918 -87.63851
+## 4     TA1305000030 Larrabee St &amp; Webster Ave          13193  41.88430 -87.63396 41.92182 -87.64414
+## 5            13253  Kingsbury St &amp; Kinzie St   KA1503000043  41.94880 -87.67528 41.88918 -87.63851
+## 6     KA1504000135  Kingsbury St &amp; Kinzie St   KA1503000043  41.90322 -87.63432 41.88918 -87.63851
+##   member_casual
+## 1        member
+## 2        member
+## 3        member
+## 4        member
+## 5        member
+## 6        member</code></pre>
+<pre class="r"><code># Verify that the tail of the combined dataset is Jan 2025
+tail(sim_combined_dataset)</code></pre>
+<pre><code>##                  ride_id rideable_type              started_at                ended_at
+## 5999252 8F27F635AD3EC17D electric_bike 2025-01-19 12:16:15.551 2025-01-19 12:24:01.221
+## 5999253 EDA9D2E5E9522300  classic_bike 2025-01-12 14:16:33.861 2025-01-12 14:24:16.135
+## 5999254 00B2ACA37BFEE6CD electric_bike 2025-01-18 09:44:57.802 2025-01-18 09:50:34.544
+## 5999255 42B036EAD9E813FB  classic_bike 2025-01-06 08:03:09.104 2025-01-06 08:08:16.801
+## 5999256 870C92298391825D  classic_bike 2025-01-09 15:28:02.640 2025-01-09 15:35:22.135
+## 5999257 3D0D009614056F36  classic_bike 2025-01-08 07:56:05.205 2025-01-08 08:01:07.372
+##           start_station_name start_station_id      end_station_name end_station_id start_lat start_lng
+## 5999252  Ellis Ave &amp; 60th St     KA1503000014   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107
+## 5999253  Ellis Ave &amp; 60th St     KA1503000014   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107
+## 5999254  Ellis Ave &amp; 60th St     KA1503000014   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107
+## 5999255 Wells St &amp; Walton St     TA1306000011 Wells St &amp; Hubbard St   TA1307000151  41.89993 -87.63443
+## 5999256  Ellis Ave &amp; 60th St     KA1503000014   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107
+## 5999257 Wells St &amp; Walton St     TA1306000011 Wells St &amp; Hubbard St   TA1307000151  41.89993 -87.63443
+##          end_lat   end_lng member_casual
+## 5999252 41.79934 -87.60096        member
+## 5999253 41.79934 -87.60096        member
+## 5999254 41.79934 -87.60096        member
+## 5999255 41.88991 -87.63427        member
+## 5999256 41.79934 -87.60096        casual
+## 5999257 41.88991 -87.63427        casual</code></pre>
+<pre class="r"><code># Save an RDS version of the dataset for optimal loading and access
+saveRDS(sim_combined_dataset, file.path(sim_processed_data_dir, &quot;sim_combined_raw_data.rds&quot;))
+# Save a csv version of the dataset for sharing
+write.csv(sim_combined_dataset, 
+          file.path(sim_processed_data_dir, &quot;sim_combined_raw_data.csv&quot;),row.names = FALSE)</code></pre>
+<hr />
+</div>
+<div id="convert-character-dates-to-posixct" class="section level2">
+<h2>Convert Character Dates to POSIXct</h2>
+<p>The <code>started_at</code> and <code>ended_at</code> columns are
+character data, to facilitate computation for analysis, these columns
+are converted into POSIXct.</p>
+<pre class="r"><code># 03_cleaning_convert_character_dates_to_posixct
+# This script will convert the started_at and ended_at columns from character 
+# to POSIXct to facilitate computation. 
+
+# Load the combined raw data
+sim_raw_combined_data &lt;- 
+  readRDS(file.path(sim_processed_data_dir, &quot;sim_combined_raw_data.rds&quot;))
+
+# Convert character dates in started_at and ended_at into POSIXct
+sim_convert_dates &lt;- function(df){
+  df$started_at &lt;- ymd_hms(df$started_at, tz = timezone)
+  df$ended_at &lt;- ymd_hms(df$ended_at, tz = timezone)
   return(df)
-})
+}
 
-# Combine all datasets into one
-combined_dataset &lt;- bind_rows(cyclistic_combined_raw)</code></pre>
-<p>***Verify the content of the combined data.</p>
-<pre class="r"><code>dim(combined_dataset)</code></pre>
-<pre><code>## [1] 5999257      13</code></pre>
-<pre class="r"><code>head(combined_dataset)</code></pre>
-<pre><code>##            ride_id rideable_type          started_at            ended_at
-## 1 C1D650626C8C899A electric_bike 2024-01-12 15:30:27 2024-01-12 15:37:59
-## 2 EECD38BDB25BFCB0 electric_bike 2024-01-08 15:45:46 2024-01-08 15:52:59
-## 3 F4A9CE78061F17F7 electric_bike 2024-01-27 12:27:19 2024-01-27 12:35:19
-## 4 0A0D9E15EE50B171  classic_bike 2024-01-29 16:26:17 2024-01-29 16:56:06
-## 5 33FFC9805E3EFF9A  classic_bike 2024-01-31 05:43:23 2024-01-31 06:09:35
-## 6 C96080812CD285C5  classic_bike 2024-01-07 11:21:24 2024-01-07 11:30:03
-##           start_station_name start_station_id          end_station_name
-## 1          Wells St &amp; Elm St     KA1504000135  Kingsbury St &amp; Kinzie St
-## 2          Wells St &amp; Elm St     KA1504000135  Kingsbury St &amp; Kinzie St
-## 3          Wells St &amp; Elm St     KA1504000135  Kingsbury St &amp; Kinzie St
-## 4     Wells St &amp; Randolph St     TA1305000030 Larrabee St &amp; Webster Ave
-## 5 Lincoln Ave &amp; Waveland Ave            13253  Kingsbury St &amp; Kinzie St
-## 6          Wells St &amp; Elm St     KA1504000135  Kingsbury St &amp; Kinzie St
-##   end_station_id start_lat start_lng  end_lat   end_lng member_casual
-## 1   KA1503000043  41.90327 -87.63474 41.88918 -87.63851        member
-## 2   KA1503000043  41.90294 -87.63444 41.88918 -87.63851        member
-## 3   KA1503000043  41.90295 -87.63447 41.88918 -87.63851        member
-## 4          13193  41.88430 -87.63396 41.92182 -87.64414        member
-## 5   KA1503000043  41.94880 -87.67528 41.88918 -87.63851        member
-## 6   KA1503000043  41.90322 -87.63432 41.88918 -87.63851        member</code></pre>
-<pre class="r"><code>tail(combined_dataset)</code></pre>
-<pre><code>##                  ride_id rideable_type              started_at
-## 5999252 8F27F635AD3EC17D electric_bike 2025-01-19 12:16:15.551
-## 5999253 EDA9D2E5E9522300  classic_bike 2025-01-12 14:16:33.861
-## 5999254 00B2ACA37BFEE6CD electric_bike 2025-01-18 09:44:57.802
-## 5999255 42B036EAD9E813FB  classic_bike 2025-01-06 08:03:09.104
-## 5999256 870C92298391825D  classic_bike 2025-01-09 15:28:02.640
-## 5999257 3D0D009614056F36  classic_bike 2025-01-08 07:56:05.205
-##                        ended_at   start_station_name start_station_id
-## 5999252 2025-01-19 12:24:01.221  Ellis Ave &amp; 60th St     KA1503000014
-## 5999253 2025-01-12 14:24:16.135  Ellis Ave &amp; 60th St     KA1503000014
-## 5999254 2025-01-18 09:50:34.544  Ellis Ave &amp; 60th St     KA1503000014
-## 5999255 2025-01-06 08:08:16.801 Wells St &amp; Walton St     TA1306000011
-## 5999256 2025-01-09 15:35:22.135  Ellis Ave &amp; 60th St     KA1503000014
-## 5999257 2025-01-08 08:01:07.372 Wells St &amp; Walton St     TA1306000011
-##              end_station_name end_station_id start_lat start_lng  end_lat
-## 5999252   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107 41.79934
-## 5999253   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107 41.79934
-## 5999254   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107 41.79934
-## 5999255 Wells St &amp; Hubbard St   TA1307000151  41.89993 -87.63443 41.88991
-## 5999256   Ellis Ave &amp; 53rd St   KA1503000052  41.78510 -87.60107 41.79934
-## 5999257 Wells St &amp; Hubbard St   TA1307000151  41.89993 -87.63443 41.88991
-##           end_lng member_casual
-## 5999252 -87.60096        member
-## 5999253 -87.60096        member
-## 5999254 -87.60096        member
-## 5999255 -87.63427        member
-## 5999256 -87.60096        casual
-## 5999257 -87.63427        casual</code></pre>
+# Apply the function
+sim_processed_data &lt;- sim_convert_dates(sim_raw_combined_data)
+
+# Check that the conversion was successful
+print(&quot;started_at column preview&quot;)</code></pre>
+<pre><code>## [1] &quot;started_at column preview&quot;</code></pre>
+<pre class="r"><code>str(sim_processed_data$started_at)</code></pre>
+<pre><code>##  POSIXct[1:5999257], format: &quot;2024-01-12 15:30:27&quot; &quot;2024-01-08 15:45:46&quot; &quot;2024-01-27 12:27:19&quot; &quot;2024-01-29 16:26:17&quot; ...</code></pre>
+<pre class="r"><code>print(&quot;ended_at column preview&quot;)</code></pre>
+<pre><code>## [1] &quot;ended_at column preview&quot;</code></pre>
+<pre class="r"><code>str(sim_processed_data$ended_at)</code></pre>
+<pre><code>##  POSIXct[1:5999257], format: &quot;2024-01-12 15:37:59&quot; &quot;2024-01-08 15:52:59&quot; &quot;2024-01-27 12:35:19&quot; &quot;2024-01-29 16:56:06&quot; ...</code></pre>
+<pre class="r"><code># Save processed data as RDS, given specific name for this simulation
+saveRDS(sim_processed_data, 
+        file.path(sim_processed_data_dir,&quot;processed_combined_data_posixct.rds&quot;))
+
+message(&quot;RDS file saved successfully: processed_combined_data_posixct.rds&quot;)</code></pre>
+<pre><code>## RDS file saved successfully: processed_combined_data_posixct.rds</code></pre>
+<hr />
 </div>
+<div id="check-for-missing-values-for-each-column" class="section level2">
+<h2>Check for Missing Values for Each Column</h2>
+<p>The next step is to check for missing values in each column. This is
+an essential step in verifying data completeness and integrity.</p>
+<div id="evaluation" class="section level4">
+<h4>Evaluation</h4>
+<p>The chunk shows that about <strong>20%</strong> of the data contains
+missing start_station_id, start_station_name, end_station_name, and
+end_station_id. This amount of data is <strong>not negligible</strong>,
+fortunately, the absence of these information will not hinder our
+analysis of the <code>ride_duration</code>, so these data were not
+removed from the analysis pool.</p>
+<pre class="r"><code># 05_sim_cleaning_check_missing_values_per_column
+# This script functions as a way to explore the data by tracking which 
+# columns have missing data. 
+
+# Load the most recent cleaned rds
+df &lt;- 
+  readRDS(file.path(sim_processed_data_dir, 
+                    &quot;processed_combined_data_posixct.rds&quot;))
+
+# Function that counts the missing values per column
+# There is a more direct and easier way to do this but this creates a table
+# that displays the information in a more accessible format.
+sim_missing_values_summary &lt;- function(df){
+  sim_missing_counts &lt;- sapply(df, function(x) sum(is.na(x)))
+  
+  # Convert the summary into a data frame
+  sim_missing_summary &lt;- data.frame(Column=names(sim_missing_counts),
+                                    Missing_Count=sim_missing_counts)
+  
+  # Sort by highest missing values first
+  sim_missing_summary &lt;- sim_missing_summary[order(-sim_missing_summary$Missing_Count),]
+  
+  return(sim_missing_summary)
+}
+
+sim_missing_summary &lt;- sim_missing_values_summary(df)
+
+# Display the missing values summary as a formatted table
+knitr::kable(sim_missing_summary, caption = &quot;Missing Values Summary by Column&quot;)</code></pre>
+<table>
+<caption>Missing Values Summary by Column</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">Column</th>
+<th align="right">Missing_Count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">end_station_name</td>
+<td align="left">end_station_name</td>
+<td align="right">1128726</td>
+</tr>
+<tr class="even">
+<td align="left">end_station_id</td>
+<td align="left">end_station_id</td>
+<td align="right">1128726</td>
+</tr>
+<tr class="odd">
+<td align="left">start_station_name</td>
+<td align="left">start_station_name</td>
+<td align="right">1096803</td>
+</tr>
+<tr class="even">
+<td align="left">start_station_id</td>
+<td align="left">start_station_id</td>
+<td align="right">1096803</td>
+</tr>
+<tr class="odd">
+<td align="left">end_lat</td>
+<td align="left">end_lat</td>
+<td align="right">7293</td>
+</tr>
+<tr class="even">
+<td align="left">end_lng</td>
+<td align="left">end_lng</td>
+<td align="right">7293</td>
+</tr>
+<tr class="odd">
+<td align="left">ride_id</td>
+<td align="left">ride_id</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">rideable_type</td>
+<td align="left">rideable_type</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">started_at</td>
+<td align="left">started_at</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">ended_at</td>
+<td align="left">ended_at</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">start_lat</td>
+<td align="left">start_lat</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">start_lng</td>
+<td align="left">start_lng</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">member_casual</td>
+<td align="left">member_casual</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Save the summary for documentation
+write.csv(sim_missing_summary, file.path(sim_processed_data_dir,
+    &quot;sim_missing_values_summary.csv&quot;))
+cat(&quot;Missing values summary saved in processed folder.\n&quot;)</code></pre>
+<pre><code>## Missing values summary saved in processed folder.</code></pre>
+<hr />
+</div>
+</div>
+<div id="trimming-whitespace-and-standardizing-the-member_casual-column" class="section level2">
+<h2>Trimming Whitespace and Standardizing the <code>member_casual</code>
+Column</h2>
+<p>Eliminating whitespaces and repeated spaces are important in ensuring
+that data are not misrepresented by the presence of unintended spaces.
+The <code>member_casual</code> data are converted to lower case to
+ensure proper identification and data consistency.</p>
+<pre class="r"><code># Load most recent simulation cleaned rds
+sim_cleaned_data &lt;- 
+  readRDS(file.path(sim_processed_data_dir, 
+                    &quot;processed_combined_data_posixct.rds&quot;))
+
+# List character columns
+char_cols &lt;- c(&quot;ride_id&quot;, &quot;rideable_type&quot;, &quot;start_station_name&quot;, 
+               &quot;start_station_id&quot;, &quot;end_station_name&quot;, &quot;end_station_id&quot;, 
+               &quot;member_casual&quot;)
+
+# Trim white spaces among character columns
+sim_cleaned_data[char_cols] &lt;- lapply(sim_cleaned_data[char_cols], trimws)
+
+# Ensure that member_casual column data are all in lower case
+sim_cleaned_data$member_casual &lt;- tolower(sim_cleaned_data$member_casual)
+
+message(&quot;Character columns whitespaces removed, casual_member column standardized.&quot;)</code></pre>
+<pre><code>## Character columns whitespaces removed, casual_member column standardized.</code></pre>
+<pre class="r"><code># Save processed data as RDS, given specific name for this simulation
+saveRDS(sim_cleaned_data, 
+        file.path(sim_processed_data_dir,&quot;trimmed_sim_cleaned_data.rds&quot;))
+
+message(&quot;RDS file saved successfully: trimmed_sim_cleaned_data.rds&quot;)</code></pre>
+<pre><code>## RDS file saved successfully: trimmed_sim_cleaned_data.rds</code></pre>
+<hr />
+</div>
+<div id="computing-and-adding-the-ride_duration-column" class="section level2">
+<h2>Computing and Adding the <code>ride_duration</code> Column</h2>
+<p>To gain insight on casual and annual member behavior and usage, it is
+necessary to analyze their corresponding <code>ride_duration</code>.
+Since there are no missing <code>started_at</code> and
+<code>ended_at</code> data, all of the <code>ride_duration</code> rows
+will have a corresponding value.</p>
+<pre class="r"><code># 06_sim_cleaning_ride_duration_column
+# This script will compute the ride duration based on started_at and 
+# ended_at POSIXct values and add a column. 
+
+# Load the most current simulation data
+sim_cleaned_data &lt;- 
+  readRDS(file.path(sim_processed_data_dir,&quot;trimmed_sim_cleaned_data.rds&quot;))
+
+# Function that calculates the ride duration in terms of minutes
+calculate_ride_duration &lt;- function(df){
+  df$ride_duration &lt;- as.numeric(difftime(df$ended_at, df$started_at, 
+                                          units=&quot;mins&quot;))
+  
+  # Flag invalid data (zero and negative)
+  df$invalid_duration &lt;- df$ride_duration &lt;= 0
+  
+  # Count the number of flagged invalid rows
+  num_invalid &lt;- sum(df$invalid_duration)
+  
+  cat(&quot;Found&quot;, num_invalid, &quot;rides with invalid durations(&lt;=0 minutes.\n&quot;)
+  cat(&quot;invalid rides flagged but not removed. \n&quot;)
+  
+  return(df)
+}
+
+# Call the function
+sim_cleaned_data &lt;- calculate_ride_duration(sim_cleaned_data)</code></pre>
+<pre><code>## Found 723 rides with invalid durations(&lt;=0 minutes.
+## invalid rides flagged but not removed.</code></pre>
+<pre class="r"><code># Save processed data as RDS, given specific name for this simulation
+saveRDS(sim_cleaned_data, 
+        file.path(sim_processed_data_dir,&quot;sim_ride_duration_cleaned_data.rds&quot;))
+
+message(&quot;RDS file saved successfully: sim_ride_duration_cleaned_data.rds&quot;)</code></pre>
+<pre><code>## RDS file saved successfully: sim_ride_duration_cleaned_data.rds</code></pre>
+<pre class="r"><code># Use the function
+sim_cleaned_data &lt;- calculate_ride_duration(sim_cleaned_data)</code></pre>
+<pre><code>## Found 723 rides with invalid durations(&lt;=0 minutes.
+## invalid rides flagged but not removed.</code></pre>
+<pre class="r"><code>str(sim_cleaned_data)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    5999257 obs. of  15 variables:
+##  $ ride_id           : chr  &quot;C1D650626C8C899A&quot; &quot;EECD38BDB25BFCB0&quot; &quot;F4A9CE78061F17F7&quot; &quot;0A0D9E15EE50B171&quot; ...
+##  $ rideable_type     : chr  &quot;electric_bike&quot; &quot;electric_bike&quot; &quot;electric_bike&quot; &quot;classic_bike&quot; ...
+##  $ started_at        : POSIXct, format: &quot;2024-01-12 15:30:27&quot; &quot;2024-01-08 15:45:46&quot; &quot;2024-01-27 12:27:19&quot; ...
+##  $ ended_at          : POSIXct, format: &quot;2024-01-12 15:37:59&quot; &quot;2024-01-08 15:52:59&quot; &quot;2024-01-27 12:35:19&quot; ...
+##  $ start_station_name: chr  &quot;Wells St &amp; Elm St&quot; &quot;Wells St &amp; Elm St&quot; &quot;Wells St &amp; Elm St&quot; &quot;Wells St &amp; Randolph St&quot; ...
+##  $ start_station_id  : chr  &quot;KA1504000135&quot; &quot;KA1504000135&quot; &quot;KA1504000135&quot; &quot;TA1305000030&quot; ...
+##  $ end_station_name  : chr  &quot;Kingsbury St &amp; Kinzie St&quot; &quot;Kingsbury St &amp; Kinzie St&quot; &quot;Kingsbury St &amp; Kinzie St&quot; &quot;Larrabee St &amp; Webster Ave&quot; ...
+##  $ end_station_id    : chr  &quot;KA1503000043&quot; &quot;KA1503000043&quot; &quot;KA1503000043&quot; &quot;13193&quot; ...
+##  $ start_lat         : num  41.9 41.9 41.9 41.9 41.9 ...
+##  $ start_lng         : num  -87.6 -87.6 -87.6 -87.6 -87.7 ...
+##  $ end_lat           : num  41.9 41.9 41.9 41.9 41.9 ...
+##  $ end_lng           : num  -87.6 -87.6 -87.6 -87.6 -87.6 ...
+##  $ member_casual     : chr  &quot;member&quot; &quot;member&quot; &quot;member&quot; &quot;member&quot; ...
+##  $ ride_duration     : num  7.53 7.22 8 29.82 26.2 ...
+##  $ invalid_duration  : logi  FALSE FALSE FALSE FALSE FALSE FALSE ...</code></pre>
+<div id="ride_duration-summary" class="section level3">
+<h3><code>ride_duration</code> Summary</h3>
+<p>The initial look at the <code>ride_duration</code> summary shows that
+there are negative time duration and unusually high positive time
+duration. This shows that further investigation of the
+<code>time_duration</code> data is necessary to filter erroneous,
+invalid, and outlier data.</p>
+<pre class="r"><code>summary(sim_cleaned_data$ride_duration)</code></pre>
+<pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## -2748.32     5.50     9.63    17.17    17.10  1500.86</code></pre>
+<hr />
+</div>
+</div>
+<div id="step-7-ride-duration-cleaning-analysis" class="section level2">
+<h2>Step 7: Ride Duration Cleaning Analysis</h2>
+<p>During data validation, the <code>ride_duration</code> column was
+found to contain <strong>negative values</strong> and
+<strong>suspiciously high</strong> durations, warranting further
+investigation to assess potential data integrity issues.</p>
+<div id="analysis-findings" class="section level3">
+<h3>Analysis Findings</h3>
+<ul>
+<li><p>Negative ride durations were identified as likely system or
+logging errors and removed since they do not represent valid
+trips.</p></li>
+<li><p>According to the company’s <strong>terms of service</strong>, any
+ride lasting 24 hours or more (≥1440 minutes) may be classified as a
+<strong>lost or stolen bike</strong>, subject to a $250+ tax charge.
+These rides were removed to maintain data integrity.</p></li>
+<li><p>Missing <code>end_station_id</code> values were initially flagged
+as potential docking errors. However, the company allows users to return
+bikes outside designated docking stations for an extra fee. Given this
+policy, these rides were retained as they may still represent valid
+trips.</p></li>
+<li><p>36,912 rides lasted ≤1 minute and had the same
+<code>start_station_id</code> and <code>end_station_id</code>. These
+were deemed <strong>invalid rides</strong> (e.g., docking errors, ride
+cancellations) and were removed to prevent data skew.</p></li>
+</ul>
+</div>
+<div id="handling-long-rides-130-minutes" class="section level3">
+<h3>Handling Long Rides (&gt;= 130 minutes)</h3>
+<ul>
+<li><p>Long rides exceeding 130 minutes make up only 0.05% of total
+rides.</p></li>
+<li><p>While some of these rides may be outliers, others may be valid
+trips (e.g., tourists, leisure rides, long-distance commutes).</p></li>
+<li><p>To preserve completeness, these rides were not removed during
+cleaning.</p></li>
+<li><p>In exploratory data analysis (EDA), a separate evaluation will be
+conducted to examine the impact of long rides and test alternative
+upper-bound cutoffs.</p></li>
+</ul>
+<pre class="r"><code># Step 1: Load the most recent version of the dataset
+sim_cleaned_data &lt;- 
+  readRDS(file.path(sim_processed_data_dir,&quot;sim_ride_duration_cleaned_data.rds&quot;)) 
+
+# --------------------------------------------------------------
+# Step 2: Remove Invalid Ride Durations
+# --------------------------------------------------------------
+# - Exclude negative ride durations.
+# - Remove rides &gt;= 1440 minutes, as Divvy considers them lost/stolen.
+# - Company policy states that rides not returned within 24 hours (1440 min)
+#   may be assessed a lost/stolen bike fee.
+
+sim_cleaned_data &lt;- sim_cleaned_data %&gt;% 
+  filter(ride_duration &gt; 0, ride_duration &lt; 1440)
+
+# Save the cleaned dataset after applying the exclusion rule
+saveRDS(sim_cleaned_data, file.path(sim_processed_data_dir, &quot;sim_invalid_data_free_data.csv&quot;))
+cat(&quot;\nUpdated cleaned dataset successfully saved!\n&quot;)</code></pre>
+<pre><code>## 
+## Updated cleaned dataset successfully saved!</code></pre>
+<pre class="r"><code># --------------------------------------------------------------
+# Step 3: Evaluate Ride Duration to Explore Lower and Upper Bounds
+# --------------------------------------------------------------
+# Objective:
+# - Evaluate the overall distribution of ride_duration to identify patterns.
+# - Assess the summary statistics for short rides (0 &lt; x &lt; 1 minute).
+# - Examine the distribution of rides from 20+ to 130+ minutes.
+# - Use quantile analysis (90% to 100%) to determine a reasonable upper bound.
+
+
+# Analyze overall ride distribution
+cat(&quot;\nSummary Statistics: Ride Duration (Full Dataset)\n&quot;)</code></pre>
+<pre><code>## 
+## Summary Statistics: Ride Duration (Full Dataset)</code></pre>
+<pre class="r"><code>print(summary(sim_cleaned_data$ride_duration))</code></pre>
+<pre><code>##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##    0.0007    5.4958    9.6167   15.2708   17.0590 1439.8333</code></pre>
+<pre class="r"><code># Analyze rides 0 &lt; x &lt; 1
+cat(&quot;\nSummary Statistics: Short Rides (&lt;1 minute)\n&quot;)</code></pre>
+<pre><code>## 
+## Summary Statistics: Short Rides (&lt;1 minute)</code></pre>
+<pre class="r"><code>print(summary(sim_cleaned_data$ride_duration[sim_cleaned_data$ride_duration &lt; 1 ]))</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## 0.00065 0.18642 0.33233 0.38383 0.55310 0.99998</code></pre>
+<pre class="r"><code># Create a table summarizing rides greater than X minutes
+ride_duration_summary &lt;- data.frame(
+  &quot;Duration_Threshold (min)&quot; = c(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130),
+  &quot;Number of Rides&quot; = sapply(c(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130), 
+                             function(x) sum(sim_cleaned_data$ride_duration &gt; x))
+)
+
+# Display the table
+knitr::kable(ride_duration_summary, caption = &quot;Ride Duration Summary (&gt; X Minutes)&quot;)</code></pre>
+<table>
+<caption>Ride Duration Summary (&gt; X Minutes)</caption>
+<thead>
+<tr class="header">
+<th align="right">Duration_Threshold..min.</th>
+<th align="right">Number.of.Rides</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">20</td>
+<td align="right">1177265</td>
+</tr>
+<tr class="even">
+<td align="right">30</td>
+<td align="right">581793</td>
+</tr>
+<tr class="odd">
+<td align="right">40</td>
+<td align="right">330150</td>
+</tr>
+<tr class="even">
+<td align="right">50</td>
+<td align="right">208953</td>
+</tr>
+<tr class="odd">
+<td align="right">60</td>
+<td align="right">147035</td>
+</tr>
+<tr class="even">
+<td align="right">70</td>
+<td align="right">108966</td>
+</tr>
+<tr class="odd">
+<td align="right">80</td>
+<td align="right">83430</td>
+</tr>
+<tr class="even">
+<td align="right">90</td>
+<td align="right">65740</td>
+</tr>
+<tr class="odd">
+<td align="right">100</td>
+<td align="right">52601</td>
+</tr>
+<tr class="even">
+<td align="right">110</td>
+<td align="right">42842</td>
+</tr>
+<tr class="odd">
+<td align="right">120</td>
+<td align="right">35363</td>
+</tr>
+<tr class="even">
+<td align="right">130</td>
+<td align="right">29745</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Ride Duration Quantiles for Extended Rides (90% - 100%)
+cat(&quot;\nRide Duration Quantiles for Extended Rides (90%-100%)...\n&quot;)</code></pre>
+<pre><code>## 
+## Ride Duration Quantiles for Extended Rides (90%-100%)...</code></pre>
+<pre class="r"><code>print(quantile(sim_cleaned_data$ride_duration, 
+               probs = c(0.90, 0.95, 0.99, 0.995, 0.998, 0.999, 1)))</code></pre>
+<pre><code>##        90%        95%        99%      99.5%      99.8%      99.9%       100% 
+##   29.53333   41.90663   94.05529  129.54913  196.24445  330.41497 1439.83333</code></pre>
+</div>
+<div id="notes" class="section level3">
+<h3>Notes:</h3>
+<ul>
+<li>ride_duration 0 &lt; x &lt; 1 is not empty, evaluate same station
+start and end.</li>
+<li>Extended ride 130+ is a candidate for upper boundary which yields
+99.5% of current database size.</li>
+</ul>
+<pre class="r"><code># --------------------------------------------------------------
+# Step 4: Investigate Short Rides (0 &lt; ride_duration &lt; 1)
+# -------------------------------------------------------------
+# - Count the total number of rides ≤ 1 minute
+# - Identify how many have the same start and end station (potential errors)
+# - Remove these short rides where start &amp; end station are identical
+
+cat(&quot;\nTotal rides &lt;= 1 min&quot;, sum(sim_cleaned_data$ride_duration &lt;= 1))</code></pre>
+<pre><code>## 
+## Total rides &lt;= 1 min 134035</code></pre>
+<pre class="r"><code># Count short rides where start &amp; end station are the same. Exclude NA
+sim_same_station_rides &lt;- sum(
+  sim_cleaned_data$start_station_id == sim_cleaned_data$end_station_id &amp; 
+    sim_cleaned_data$ride_duration &lt;= 1, 
+  na.rm = TRUE
+)
+
+cat(&quot;\nShort rides where start and end station are the same:&quot;, sim_same_station_rides, &quot;\n&quot;)</code></pre>
+<pre><code>## 
+## Short rides where start and end station are the same: 36912</code></pre>
+<pre class="r"><code># Remove the short rides with identical start and end station, excluding NA.
+sim_cleaned_data &lt;- sim_cleaned_data %&gt;% 
+  filter(!(start_station_id==end_station_id &amp; !is.na(start_station_id) &amp;
+             ride_duration &lt;= 1))
+
+cat(&quot;Total short rides removed:&quot;, sim_same_station_rides, &quot;\n&quot;)</code></pre>
+<pre><code>## Total short rides removed: 36912</code></pre>
+<pre class="r"><code># Verify that no more short rides with identical start and end station exist
+sim_same_station_rides_after &lt;- sum(
+  sim_cleaned_data$start_station_id == sim_cleaned_data$end_station_id &amp; 
+    sim_cleaned_data$ride_duration &lt;= 1, 
+  na.rm = TRUE
+)
+
+cat(&quot;\nVerification - Short rides where start and end station are the same after removal:&quot;, sim_same_station_rides_after, &quot;\n&quot;)</code></pre>
+<pre><code>## 
+## Verification - Short rides where start and end station are the same after removal: 0</code></pre>
+<pre class="r"><code># Save the current version of the RDS
+saveRDS(sim_cleaned_data,file.path(sim_processed_data_dir, 
+                                   &quot;sim_ride_duration_cleaned_data.rds&quot;))
+cat(&quot;\nUpdated cleaned dataset successfully saved!\n&quot;)</code></pre>
+<pre><code>## 
+## Updated cleaned dataset successfully saved!</code></pre>
+<pre class="r"><code># --------------------------------------------------------------
+# Step 5: Investigate Extended Rides (&gt;= 130 Minutes)
+# --------------------------------------------------------------
+# - Count rides &gt;= 130 minutes
+# - Analyze distribution using quantiles
+# - Create a histogram to visualize long rides
+
+# Compute the number of extended rides (&gt;= 130 minutes)
+extended_rides_count &lt;- sum(sim_cleaned_data$ride_duration &gt;= 130)
+cat(&quot;Total rides &gt;= 130 minutes:&quot;, extended_rides_count, &quot;\n&quot;)</code></pre>
+<pre><code>## Total rides &gt;= 130 minutes: 29748</code></pre>
+<pre class="r"><code>total_rides &lt;- nrow(sim_cleaned_data)
+cat(&quot;Total rides in the dataset:&quot;, total_rides, &quot;\n&quot;)</code></pre>
+<pre><code>## Total rides in the dataset: 5930062</code></pre>
+<pre class="r"><code># Compute what percentage are long rides out of total rides
+extended_rides_percent &lt;- (extended_rides_count/total_rides) * 100
+cat(&quot;\nExtended rides percent =&quot;,round(extended_rides_percent,2),&quot;%\n&quot;)</code></pre>
+<pre><code>## 
+## Extended rides percent = 0.5 %</code></pre>
+<pre class="r"><code># Analyze ride duration quantiles for long rides (90th to 100th percentile)
+cat(&quot;\nRide duration quantiles for extended rides (90%-100%)...\n&quot;)</code></pre>
+<pre><code>## 
+## Ride duration quantiles for extended rides (90%-100%)...</code></pre>
+<pre class="r"><code>print(quantile(sim_cleaned_data$ride_duration, 
+               probs = c(0.90, 0.95, 0.99, 0.995, 0.997, 0.999, 1)))</code></pre>
+<pre><code>##        90%        95%        99%      99.5%      99.7%      99.9%       100% 
+##   29.69890   42.11433   94.50827  130.17246  163.80463  333.29813 1439.83333</code></pre>
+<pre class="r"><code># Histogram of extended ride durations (130+ min)
+ggplot(sim_cleaned_data %&gt;% filter(ride_duration &gt;= 130), aes(x = ride_duration)) +
+  geom_histogram(binwidth = 10, fill = &quot;red&quot;) +
+  xlim(130, 1440) +
+  labs(title = &quot;Extended Ride Duration Distribution (≥100 min)&quot;, 
+       x = &quot;Ride Duration (mins)&quot;, y = &quot;Count&quot;)</code></pre>
+<p><img role="img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAABXFBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZpAAZrYzMzM6AAA6ADo6OgA6Ojo6OmY6OpA6ZmY6ZpA6ZrY6kJA6kLY6kNtNTU1NTW5NTY5Nbo5NbqtNjshmAABmOgBmOjpmZgBmZjpmZmZmZpBmkJBmkLZmkNtmtrZmtttmtv9uTU1ubm5ubo5ujqtujshuq+SOTU2Obk2Obm6Oq6uOq8iOq+SOyOSOyP+QOgCQZgCQZjqQZmaQkDqQkGaQkLaQtraQttuQ29uQ2/+rbk2rbm6rjm6ryOSr5P+2ZgC2Zjq2Zma2kDq2kGa2kJC2tpC2tra2ttu229u22/+2///Ijk3Ijm7IyKvI5P/I///bkDrbkGbbtmbbtpDbtrbb27bb29vb2//b/7bb///kq27kyI7kyKvk///r6+v/AAD/tmb/yI7/25D/27b/29v/5Kv/5Mj/5OT//7b//8j//9v//+T////WgLxFAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO2d/ZsbVZqe1YOJ6WAWnEX+ABNY2OBOPJhJsjiQnSXjeGgCWRamJ3YvrIfYg2fbXx27W///dUVVqipVlaqkt84pdb269dw/zCC5JZ37PP0+LkkleTQRQggRxGjoBQghxKaiAhVCiEBUoEIIEYgKVAghAlGBCiFEICpQIYQIRAUqhBCBqECFECIQFagQQgSiAhVCiEBUoEIIEYgKVAghAlGBCiFEICpQIYQIRAUqhBCBDFOgR6M65/t9gP3R6O2AH3qyW17TK29++WB2/Yt3Rzu/6/4I5bu78OaX5tUvoWElFtpW0vHush8/uTUaXe/w6IGLnrG/ap8PR68+mF86+em9qeMbXy6/ysCSRR/2/esqNhbnBfrTe2GD10uBTjk3e/geCnTKzsd2gQWyneihQMsrWXZ3DXvftUDjFp1SrccGpmqln3h6LU/uhyVXWViy6Kn/6t8usRW4LtDpL2rg4PVVoNnj91Ogo9HFDgoVip3op0CLlbTfXePedyvQ2EVnC08e6euP2lp0et+lAk0uZfzqD61XmVi26KOII2qBYrACXXFckRI+eOEFOl/XyU/X2g+NrQWa393J/c+TEQ49cIl6Ehy0kmWPaCzQ2EXPHikNYLrbbzUePz5N6nGe2fTndqZde/LNPLmGq+LZN/3+Cj4q0DLVp4OTk/1R6wI6FujsUnCh9FigxpX4KNDD7B7206fgi68i/5geWRdqidhsYUe5YcNVPTC9Vz2JFxMVaPWaWoGm09dyP90LNL23wGOgfgvUshIXBTq9h9kyT75Nm3Kn+kz+aXIs/Xrpd+lwrpXn03BVH+x3ez1AUFGBlqkXaNIU/RVoMsyBPj0XqGElLgr0sPQ4P83eCyo9k09f2H279LtUXld2dcNVvXDUYxmLDcZRgZYOi9LnXfkbH9kQPv08eeJZzM9+Mhjpda/MD0vSE1Z2Lj4o11vtds0/NF9CY4HOq8D0CG13l7yf8Xa2+PzG+RFS0hUnX++Odt5IH+in5D6naj/n25HtRKmU7r+3ekNWrWR+d08/fz15wLe+z3++2PvSyipvIt1PdiL7+Qal+EUntyuvOj3gLD2Tnz7CuR/Kv0vlxs7+u+GqEvvJFenDv5He6ex8p+8rP928xOkW6BBUuCrQ+WFRMqDnK0M8Ofm6eP94dsPk9zq/Lh+L/ISVnd8V47xwu6YfKmh7Cl+MnukRWu9u5jVpLdD9XKY482a0c33S3EXJfa3ckJUrye9uLjE72adeoNnKygV6mP38W8XDry7QbotePMyrPpN/8m8/nlR+l6YPWbRadujZcFWJpEBzj7fnm5A+aLlAG5Z42O1UWAHFU4Emv+Dp1YfpGSflIZ5PXn6UOv29vlBcNbuz+bk6v/r32RQs3q7hh+bU30S6lc1MPkymR2i9u1QsvaK5QC/kLqUzb9LHbeii8o/MHqNhQ1avpNQSBUnh1Ao0X1mpQD9YfPiVBdpx0bODvxqzZ/KlnS79LpV/rbK2bLiq8gA7f188/MfFJlQyb1niUe8f/hCbiKcCzQ/4ijdO58+5ksOEi9Ons8+SY4H8WfDsBbH0aC358bTKkh+azdjbjbdr+qHKAubrevbt6/molopj5SO03V32w+nxUHOBjkZ//WDy7OfZmTcfP8gOuCqHQ5XGS+zvX2vfEMNKsrtLdjyRmDz7ZlR/xPLKyvswejV/rLZXJWIXPb1Z09PkJ9eWFOj8D2YLariqRPHwPyXP0NNNL053qvzdsrjElsWJLWOwAq1SOmcveZ6YXS5PYP6rezTvoGwa8tfzkhaYfcImHfC3G2/X8EMlFk+kP/eH0kJMj1C9u2ptHS0v0Oy66n2m91DvovnpAcmpVi0bYlhJdnelt6oX2q+2sqJAzy88/KoCjV50wrIj0MPFtmy4qsT84Y9GxRP0/cWD84Ylhn/IQ5DwVaDpr+h+UUTFBJbHIHteN/+p5D/Pz/8vIR/Vxds1/FCJhQLNXuDLFmJ6hOrddSnQfCCrb4s0Fuh+5UdaNsSwknmBnqsdTlUKNF9ZqUDLH/S53qwUu+jDhWuazmaKLND5r1r+Z0cLBdq4xD5PihIbi68Czf8g66FiAsvVlL2zsF8/aKq8wrVf/FD1dk0/VKL2ZSIf5m8WzxZieoTa3XUp0IZXNfInirUuqq+k9vfHYvOsKNB029/8h5+rjzwv0Nrb3JWzu+YbsaJAOy/6sLaf9XfhC5OYAi391X292KvS1rQusb46sZW4eg10kr3ilP9iFu8R36q0bT561YGtnKQy++1evF3DD5UpeiZ5Jax0nDO7mekRGu+udKMlBVo/3PrTP36xO2os0MpKss1suM/VK6m8qDnljd/mP1Up0PPVKytVeNiSR/yiq323eB5o5Z6y/+z8Gmj1xYlsr2oF2rjExfWKLcRbgSZHAsUriW0F2jh6lVf1jxrrLX0buf5DZUo9c7RbWmPRAKsfoeXuZuRPYlcW6P30rMyU9RRo7YW+kkd2gLeiQCsPv/4Cbf4kUvmeav9pfRdeBSqi8FagR5Yj0LMo0HQl1aeu0QW64jzQYh7np4Guq0Dr54EWz4+L7TcX6Jkcge6Xqr1G9TzQcltmb1zVr2p8BBWoCMJZgc7OFKy9Z9H40UHrU/jq7axP4bM/Lr1C1v4Uvv186qbz8q83Lr5eUwkX3vzwn/5v82ug9ZW0NNjqlVTu6Nn/fm+32P41P4W3LLpaoM3fxlR/y63+7KXhqsZHUIGKIJwVaPKK/X8r/rD8JlL9BfuF3+uWt3hqH2VZ+SZS6evskqPL66WFmB6h9e4m85dAa9VQL9DD7DTQSdc3kewFelg/si2k8xNBVxXokjeR9psLtPOiS3/Bfd36faDl36XOn4WPLFC9iSR8FWj63vD89KLyaUzlb9xpfte3+m5xfpJR7XYNP1Ri8VvfflU+D9T0CK13V/qw//yd3eJZfWk4S2pHzU/h6ytpOY9o9Ura/2ZYVaClp821N6sLpdhF2z7sc1RNoLSJDfvaeozbvUB1GpOYOCvQrJX2F74IvnTKZmlga7/X1fO0i3Prq7dr+KEStZ4pnsS/aDoTvOURWu+u9C2cxaHo/CEOKwU0v8vmAm0+J91aoPOVLFbb4venNBdo/vDVj9827Vofi96vvtTcciJ96ZMOle8DrV01J6JAdSK9SHBVoPO3hmd/PK+SZIDOfZ+9G9v2PkzyQ8UnBWd/2ni7+g/NafgsfOWlQtMjNN7ds39J36S5XviPzv2P/J2bhiOl9Cl8+unQWdEUO9G4knwhpi6qrKRUbefSf3Qtub/qI7YV6PwzrddblGIXXXr90lig6c9dXPhG+vpVk9KPhxboC32UU0zcnEifn849+yU+yuYre4/7evXd7oWXEQ9LA5vd2/vZny7eruGH5jS911IeJtMjVG9eoTgrZ36jD3cXCrR6s/IDXy9W8qLpezmWFmjjSvK7O1z4s/neNxfoB7W7alCKXXTpUwrWAi09guXfRIooUH2ZiEhwVKCl1yTzZ3hHxYSeFGfZZP+2YtPvdT7EO9eLlyMXbtf0QwVN55tX3uE3PUL57sqUTsN5kX8tXvKtpwunMRV1tvMfbpUO8JJHnD8tLk51mn8znLlAi5UUd/fPxQ/k/2Jnsfct78LniyzOOVtQil20raSqz2a6/aucEQW6v+z0C7E1OCrQ/ep7DOmv6o/J+eR/nV53P/2K4Tfy0W/+vb6ffiPuD+X3c2q3a/6hjIUCzZ7El8bL9Ajzuyu48Dffl//o5McLsy8WbirQ7Cuak3/JvLg624nSSn5KTjp6pfzdxLYCLa9kfnfPvk2/tK30r6fne992GlP61dLlL6quK8Uu2vY0ufZy0Owfgb/w8fKrFh6+a4HqGbxIGaZAhbBw6PYwT/+kh0hRgQq/vHjX6QuN+hc9xAwVqHDMYfHE2hdP9M8aixQVqHDM9EjP5SHoftt3OYgtQwUqPDM91HP4KuiR0wNjceaoQIVrDh0e602Pi/UEXqSoQIVrPJaVx1IXw6ACFUKIQFSgQggRiApUCCECUYEKIUQgKlAhhAhEBSqEEIGoQIUQIhAVqBBCBKICFUKIQFSgQggRiApUCCECUYEKIUQgKlAhhAhEBSqEEIEMUaB/cYzrxQXhe7+DABrxlHgpzUJSgS7F9eKC8L3fQQCNeEq8lFSgBlwvLgjf+x0E0IinxEtJBWrA9eKC8L3fQQCNeEq8lFSgBlwvLgjf+x0E0IinxEtJBWrA9eKC8L3fQQCNeEq8lFSgBlwvLgjf+x0E0IinxEtJBWrA9eKC8L3fQQCNeEq8lFSgBlwvLgjf+x0E0IinxEtJBWrA9eKC8L3fQQCNeEq8lFSgBlwvLgjf+x0E0IinxEtJBWrA9eKC8L3fQQCNeEq8lPot0Od7Vx+l/3F6Z288vnF3suKCCnQgfO93EEAjnhIvpV4L9PT2eFagL2+OEy7fW35BBToUvvc7CKART4mXUq8F+nCcFejB+OrdyXFWp+0XVKBD4Xu/gwAa8ZR4KfVZoM/3sgJ9vpceYb68eemrZRdUoIPhe7+DABrxlHgp9Vig0yfw/3n2GujD8TvpNQ/Hnyy7oAIdDN/7HQTQiKfES6nHAj0Yv5O9iXQw/iy95nFSl+0XVKCD4Xu/gwAa8ZR4KfVXoI+nT99nBXp6O3uCnlxsvzC72WsZIQ8phBDuCCnQ9GVNFagQYtsJKdCD5FXNhQK9fK/9QvX2Qx+KL8P14oLwvd9BAI14SryU+noK/zB9/z3gCFQFOgS+9zsIoBFPiZdSTwX6fC9tRhXohuB7v4MAGvGUeCn1VKAPxwXT5+Z6F947vvc7CKART4mX0loKND/LMzv1s+2CCnQwfO93EEAjnhIvpbV8mYg+ieQd3/sdBNCIp8RLaS0Fenp7fKX4xHv7BRXoYPje7yCARjwlXkrr+Tq74/J3LrVfUIEOhe/9DgJoxFPipbSm7wM9vjNtyRvZUWb7BRXoQPje7yCARjwlXkr6RnoDrhcXhO/9DgJoxFPipaQCNeB6cUH43u8ggEY8JV5KKlADrhcXhO/9DgJoxFPipaQCNeB6cUH43u8ggEY8JV5KKlADrhcXhO/9DgJoxFPipaQCNeB6cUH43u8ggEY8JV5KKlADrhcXhO/9DgJoxFPipaQCNeB6cUH43u8ggEY8JV5KhAL914yetmQRXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJyU6AR5AU69DqEEEJHoHVwf20SD26ARjwlXkpujkAjHFSgnQHOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lEgF+q/ralJc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KfVXoL98Oh5f+i+PZhdO7+yNxzfurrqgAh0I4GwCjXhKvJR6K9CH45Qr95ILL2+mFy6vuKACHQrgbAKNeEq8lPoq0Od7l/5uMjn+dPxOculgfPXu5Pj2+OqjpRdUoEMBnE2gEU+Jl1JfBXow/mTWo8mx5ex/p0ebl75adkEFOhjA2QQa8ZR4KfX8JtLLm0lBPpwdh07//5NlF1SggwGcTaART4mXUs8F+nwveW5+MP4svfQ4qcv2CyrQwQDOJtCIp8RLqd8C/fNeUpCnt7Mn6Emdtl+Y3eS1jNCHnLJQoBH3JYQQcQQW6MF4fOn3ExWoEGKbCSvQ0//5H/fGl/5rpUAv32u/UL11xFG0nsJ3BvjsEGjEU+Kl1PNroL8kz+E7HYGqQIcAOJtAI54SL6W+P8r5eLysM1WgTgDOJtCIp8RLqe8CTZtR78J7BzibQCOeEi+lngr09HbWjGmB5md5Zqd+tl1QgQ4GcDaBRjwlXkr9fRLpnfn/65NI3gHOJtCIp8RLqb/Pwo9//Why+sdx0ozT49ErxSfe2y+oQAcDOJtAI54SL6XeXgN9PPs2pkvpM/nj8ncutV9QgQ4FcDaBRjwlXkr9vYl0/JtpfeZf9Hl8Z9qSNx6tuqACHQjgbAKNeEq8lPSN9AZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUkAXad5HiUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEtJBWoAlzpxNoFGPCVeSipQA7jUibMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSmwKNoLVAh16YEGIL0RFoFdxfm8SDG6ART4mXkpsj0AgHFWhngLMJNOIp8VJSgRrApU6cTaART4mXkgrUAC514mwCjXhKvJRUoAZwqRNnE2jEU+KlpAI1gEudOJtAI54SLyUVqAFc6sTZBBrxlHgpqUAN4FInzibQiKfES0kFagCXOnE2gUY8JV5KKlADuNSJswk04inxUlKBGsClTpxNoBFPiZeSCtQALnXibAKNeEq8lFSgBnCpE2cTaMRT4qWkAjWAS504m0AjnhIvJRWoAVzqxNkEGvGUeCmpQA3gUifOJtCIp8RLSQVqAJc6cTaBRjwlXkoqUAO41ImzCTTiKfFSUoEawKVOnE2gEU+Jl5IK1AAudeJsAo14SryUVKAGcKkTZxNoxFPipaQCNYBLnTibQCOeEi8lFagBXOrE2QQa8ZR4KalADeBSJ84m0IinxEsJXaB9NSkudeJsAo14SryUVKCWTYq8vT+Aswk04inxUlKBWjYp8vb+AM4m0IinxEtJBWrZpMjb+wM4m0AjnhIvJRWoZZMib+8P4GwCjXhKvJRUoJZNiry9P4CzCTTiKfFSUoFaNiny9v4AzibQiKfES0kFatmkyNv7AzibQCOeEi8lFahlkyJv7w/gbAKNeEq8lFSglk2KvL0/gLMJNOIp8VJSgVo2KfL2/gDOJtCIp/32CIwAACAASURBVMRLSQVq2aTI2/sDOJtAI54SLyUVqGWTIm/vD+BsAo14SryUVKCWTYq8vT+Aswk04inxUlKBWjYp8vb+AM4m0IinxEtJBWrZpMjb+wM4m0AjnhIvJRWoZZMib+8P4GwCjXhKvJRUoJZNiry9P4CzCTTiKfFSUoFaNiny9v4AzibQiKfES0kFatmkyNv7AzibQCOeEi8lFahlkyJv7w/gbAKNeEq8lFSglk2KvL0/gLMJNOIp8VJSgVo2KfL2/gDOJtCIp8RLSQVq2aTI2/sDOJtAI54SLyUVqGWTIm/vD+BsAo14SryUVKCWTYq8vT+Aswk04inxUlKBWjYp8vb+AM4m0IinxEtJBWrZpMjb+wM4m0AjnhIvJRWoZZMib+8P4GwCjXhKvJRUoJZNiry9P4CzCTTiKfFSUoFaNiny9v4AzibQiKfES0kFatmkyNv7AzibQCOeEi8lFahlkyJv7w/gbAKNeEq8lFSglk2KvL0/gLMJNOIp8VJSgVo2KfL2/gDOJtCIp8RLSQVq2aTI2/sDOJtAI54SLyUVqGWTIm/vD+BsAo14SryUVKCWTYq8vT+Aswk04inxUlKBWjYp8vb+AM4m0IinxEtJBWrZpMjb+wM4m0AjnhIvJRWoZZMib+8P4GwCjXhKvJQ6FOjJF3/zoLjw5P2/etD4UyrQTQA4m0AjnhIvpQ4F+uLdX/2h+YIKdNMAzibQiKfESym0QJ/sqkA3GOBsAo14SryUbAX64t3RAq/qKfzmApxNoBFPiZeS8Qj0aLFAr/fanyrQMwU4m0AjnhIvJWOBnvyvDz54f3fnzQ9yPvy+3/5UgZ4pwNkEGvGUeCmFvgbaOxEOKtDOAGcTaMRT4qUUehqTCnSjAc4m0IinxEtJJ9JbNiny9v4AzibQiKfES6lzgf4p52cV6OYCnE2gEU+Jl1KnAn36eeldeJ0HusEAZxNoxFPipdSlQKtng6pANxjgbAKNeEq8lLoU6OFodO7D73L+SSfSby7A2QQa8ZR4KXV5F/7W6HyvnakCHQzgbAKNeEq8lDqdB7rzOxUoA+BsAo14SryUdCK9ZZMib+8P4GwCjXhKvJQ6PYXXESgF4GwCjXhKvJS6vYn0tgqUAXA2gUY8JV5KXQp0egj6sQoUAXA2gUY8JV5KnT4L//5oNP9Cpp4/GB/hoALtDHA2gUY8JV5Knd5EGulEegjA2QQa8ZR4KalALZsUeXt/AGcTaMRT4qXU37cx/fKb8fjSjbuzC6d39sbj1RdUoAMBnE2gEU+Jl1JvBfrHccqlr5ILL2+mFy7fW35BBToUwNkEGvGUeCn1VaCPx5f+bjI5vj2rxoPx1bvJhauPll5QgQ4FcDaBRjwlXkpdCvTZn8pUvg/09Pb4s+T/pweY0/9/vpfW6MubyfFo+wUV6GAAZxNoxFPipdTTm0gvb2ZPyg/Gn0wmD8fvpBceLr+gAh0M4GwCjXhKvJT6fhc+LdCD2eHo9Hn9O8suqEAHAzibQCOeEi+lLifS/0v+VaB/f2208w+N3weaPjc/vZ09QX++d/VR+4XZLV7LaHxIG6sLNOLOhRCiE6vfRHqy+2rjB5HSp+gqUCHE9mJ4F775i0Uep6cxlWry8r32C9WbRhxF6yl8Z4DPDoFGPCVeSqGnMTUegj7eu5S8xNnpCFQFOgTA2QQa8ZR4KYUWaNO3Kz/MTqNXgboHOJtAI54SL6XwI9CFAv3jOD+5U+/Cewc4m0AjnhIvpcACPdkf1Z7Cnx6Mr+Qva+ZneWanfrZdUIEOBnA2gUY8JV5Knb4PNP8q0A/e3x3V30Q6KH06U59E8g5wNoFGPCVeSsEn0tcOQB+WP91+ent8pfjEe/sFFehgAGcTaMRT4qUUWKCvfFTtz+xLlhKSFzePy9+51H5BBToUwNkEGvGUeCn19G1Mj8eVAp0c35n+143sKLP9ggp0IICzCTTiKfFS6u8LlSOJcFCBdgY4m0AjnhIvJRWoZZMib+8P4GwCjXhKvJQ6Fuizby+MRjsXPvq59SdUoJsAcDaBRjwlXkrdCvSweBep6ZPwKtCNATibQCOeEi+lTgWa9Ocrb37w/utraNAIBxVoZ4CzCTTiKfFS6lKgT3ZHr/6Q/tfTW6Od36lANxfgbAKNeEq8lLoUaOnjmye3RudVoJsLcDaBRjwlXkpdPsp5q3TU2faNyirQjQA4m0AjnhIvpU6fRCp9AVPT19mpQDcG4GwCjXhKvJRUoJZNiry9P4CzCTTiKfFS6vQUfnS9uHBU/zYRFegmAZxNoBFPiZeS3kSybFLk7f0BnE2gEU+Jl1LH05jOfZ/+1/1rOo1powHOJtCIp8RLqfOJ9KMLFy6s46NIEQ4q0M4AZxNoxFPipdTto5w/7maf5Nz5uOf+VIGeKcDZBBrxlHgpdfwykZOf3p8egb75Zb9vIKlAzxrgbAKNeEq8lPR1dpZNiry9P4CzCTTiKfFSUoFaNiny9v4AzibQiKfES6lDgT7LvgT0yRtreAavAj1TgLMJNOIp8VIyF+jTa/kb74freA9JBXqmAGcTaMRT4qVkLdDk/ffs1Plv9IXKGw9wNoFGPCVeSsYCPZp2ZnYS/WRy8vX00vWFn1GBbg7A2QQa8ZR4KdkKNPkn4cvHnNNn8T1/l4gK9EwBzibQiKfES8lWoNPCrHx3yMmt3p/ERzioQDsDnE2gEU+Jl5KpQJO+rD5lPxrp25g2GeBsAo14SryUTAU6fQZf++6QJ7t9P4ePcFCBdgY4m0AjnhIvJWuB1upy8RoV6CYBnE2gEU+Jl5IK1LJJkbf3B3A2gUY8JV5K1tdAF5/C6zXQDQY4m0AjnhIvJdu78Pv1N90PR/pG+k0GOJtAI54SLyVbgdbfdNdpTBsOcDaBRjwlXkphJ9Lvb9iJ9JFFikudOJtAI54SL6UOH+W8mB+DPv180/5JDxVoDeBsAo14SryUrF8mkv5zSOd++9133317LfnPnl8BVYGeLcDZBBrxlHgpmb/O7p/zfw4p/SeR/rbv/lSBninA2QQa8ZR4Kdm/UDl94j6rz4s/996fKtAzBTibQCOeEi+lTv+kx/1//OKDD79bQ3uqQM8Y4GwCjXhKvJS2499EUoHWAM4m0IinxEtJBWrZpIjF+QQ4m0AjnhIvJRWoZZMiFucT4GwCjXhKvJRUoJZNilicT4CzCTTiKfFSUoFaNilicT4BzibQiKfES0kFatmkiMX5BDibQCOeEi8lFahlkyIW5xPgbAKNeEq8lFSglk2KWJxPgLMJNOIp8VJSgVo2KWJxPgHOJtCIp8RLSQVq2aSIxfkEOJtAI54SLyUVqGWTIhbnE+BsAo14SryUVKCWTYpYnE+Aswk04inxUlKBWjYpYnE+Ac4m0IinxEtJBWrZpIjF+QQ4m0AjnhIvJRWoZZMiFucT4GwCjXhKvJRUoJZNilicT4CzCTTiKfFSUoFaNilicT4BzibQiKfES0kFatmkiMX5BDibQCOeEi8lFahlkyIW5xPgbAKNeEq8lFSglk2KWJxPgLMJNOIp8VJSgVo2KWJxPgHOJtCIp8RLSQVq2aSIxfkEOJtAI54SLyUVqGWTIhbnE+BsAo14SryUVKCWTYpYnE+Aswk04inxUlKBWjYpYnE+Ac4m0IinxEtJBWrZpIjF+QQ4m0AjnhIvJRWoZZMiFucT4GwCjXhKvJRUoJZNilicT4CzCTTiKfFSUoFaNilicT4BzibQiKfES0kFatmkiMX5BDibQCOeEi8lFahlkyIW5xPgbAKNeEq8lFSglk2KWJxPgLMJNOIp8VJSgVo2KWJxPgHOJtCIp8RLSQVq2aSIxfkEOJtAI54SLyUVqGWTIhbnE+BsAo14SryUVKCWTYpYnE+Aswk04inxUlKBWjYpYnE+Ac4m0IinxEtJBWrZpIjF+QQ4m0AjnhIvJRWoZZMiFucT4GwCjXhKvJRUoJZNilicT4CzCTTiKfFSUoFaNilicT4BzibQiKfES0kFatmkiMX5BDibQCOeEi8lFahlkyIW5xPgbAKNeEq8lFSglk2KWJxPgLMJNOIp8VJSgVo2KWJxPgHOJtCIp8RLSQVq2aSIxfkEOJtAI54SLyUVqGWTIhbnE+BsAo14SryU3BRoBPYCHXqlQgg+OgKt/S0TsTifAA9ugEY8JV5Kbo5AIxxUoJ0BzibQiKfES0kFatmkiMX5BDibQCOeEi8lFahlkyIW5xPgbAKNeEq8lFSglk2KWJxPgLMJNOIp8VJSgVo2KWJxPgHOJtCIp8RLSQVq2aSIxfkEOJtAI54SLyUVqGWTIhbnE+BsAo14SryUVKCWTYpYnE+Aswk04inxUlKBWjYpYnE+Ac4m0IinxEtJBWrZpIjF+QQ4m0AjnhIvJRWoZZMiFucT4GwCjXhKvJRUoJZNilicT4CzCTTiKfFSUoFaNilicT4BzibQiKfES0kFatmkiMX5BDibQCOeEi8lFahlkyIW5xPgbAKNeEq8lFSglk2KWJxPgLMJNOIp8VJSgVo2KWJxPgHOJtCIp8RLSQVq2aSIxfkEOJtAI54SLyUVqGWTIhbnE+BsAo14SryUVKCWTYpYnE+Aswk04inxUlKBWjYpYnE+Ac4m0IinxEtJBWrZpIjF+QQ4m0AjnhIvJRWoZZMiFucT4GwCjXhKvJRUoJZNilicT4CzCTTiKfFSUoFaNilicT4BzibQiKfES0kFatmkiMX5BDibQCOeEi8lFahlkyIW5xPgbAKNeEq8lFSglk2KWJxPgLMJNOIp8VJSgVo2KWJxPgHOJtCIp8RLSQVq2aSIxfkEOJtAI54SLyUVqGWTIhbnE+BsAo14SryUVKCWTYpYnE+Aswk04inxUlKBWjYpYnE+Ac4m0IinxEtJBWrZpIjF+QQ4m0AjnhIvJRWoZZMiFucT4GwCjXhKvJRUoJZNilicT4CzCTTiKfFSUoFaNilicT4BzibQiKfES0kFatmkiMX5BDibQCOeEi8lFahlkyIW5xPgbAKNeEq8lFSglk2KWJxPgLMJNOIp8VJSgVo2KWJxPgHOJtCIp8RLSQVq2aSIxfkEOJtAI54SLyUVqGWTIhbnE+BsAo14SryUVKCWTYpYnE+Aswk04inxUlKBWjYpYnE+Ac4m0IinxEtJBWrZpIjF+QQ4m0AjnhIvJRWoZZMiFucT4GwCjXhKvJRUoJZNilicT4CzCTTiKfFSUoFaNilicT4BzibQiKfES0kFatmkiMX5BDibQCOeEi+l7SrQwCbFpU6cTaART4mXkgrUskkRi/MJcDaBRjwlXkoqUMsmRSzOJ8DZBBrxlHgpqUAtmxSxOJ8AZxNoxFPipaQCtWxSxOJ8ApxNoBFPiZeSCtSySRGL8wlwNoFGPCVeSipQyyZFLM4nwNkEGvGUeCmpQC2bFLE4nwBnE2jEU+KlpAK1bFLE4nwCnE2gEU+Jl5IK1LJJEYvzCXA2gUY8JV5KKlDLJkUszifA2QQa8ZR4KalALZsUsTifAGcTaMRT4qWkArVsUsTifAKcTaART4mXkgrUskkRi/MJcDaBRjwlXkoqUMsmRSzOJ8DZBBrxlHgpqUAtmxSxOJ8AZxNoxFPipaQCtWxSxOJ8ApxNoBFPiZeSCtSySRGL8wlwNoFGPCVeSipQyyZFLM4nwNkEGvGUeCmpQC2bFLE4nwBnE2jEU+KlpAK1bFLE4nwCnE2gEU+Jl5IK1LJJEYvzCXA2gUY8JV5KKlDLJkUszifA2QQa8ZR4KalALZsUsTifAGcTaMRT4qWkArVsUsTifAKcTaART4mXkgrUskkRi/MJcDaBRjwlXkoqUMsmRSzOJ8DZBBrxlHgpqUAtmxSxOJ8AZxNoxFPipaQCtWxSxOJ8ApxNoBFPiZeSCtSySRGL8wlwNoFGPCVeSipQyyZFLM4nwNkEGvGUeCmpQC2bFLE4nwBnE2jEU+KlpAK1bFLE4nwCnE2gEU+Jl5IK1LJJEYvzCXA2gUY8JV5KKlDLJkUszifA2QQa8ZR4KalALZsUsTifAGcTaMRT4qXUa4G+vPlO9l+nd/bG4xt3V11QgQ4EcDaBRjwlXkq9FujB+J28SccJl+8tv6ACHQrgbAKNeEq8lHos0NODcV6gB+OrdyfHt8dXHy29oAIdCuBsAo14SryU+ivQXz4d5wX6fC89wnx589JXyy6oQAcDOJtAI54SL6XeCvThePzrP2cF+rD4/0+WXVCBDgZwNoFGPCVeSv0V6JXfTx5n9Xgw/iz9//Ry+wUV6GAAZxNoxFPipdTrm0hZLZ7ezp6gP9+7+qj9wuw2r2UEPmRCQIFGPJoQQixDBSqEEIH0V6CX77VfqN424ig6oEBzjIfpEYvzCfDZIdCIp8RLafCn8CrQIQDOJtCIp8RLSQVq2aSIxfkEOJtAI54SL6V1FOgGvAuvAh16Bb0DNOIp8VJaS4HmZ3lmp362XVCBDgZwNoFGPCVeSmspUP+fRFKBDr2C3gEa8ZR4Ka2lQE9vj68Un3hvv6ACHQzgbAKNeEq8lNZSoJPj8ncutV9QgQ4FcDaBRjwlXkrrKdDJ8Z1pS954tOqCCnQggLMJNOIp8VLa0m+kV4EOvYLeARrxlHgpqUAtmxSxOJ8AZxNoxFPipaQCtWxSxOJ8ApxNoBFPiZeSCtSySRGL8wlwNoFGPCVeSipQyyZFLM4nwNkEGvGUeCmpQC2bFLE4nwBnE2jEU+KlpAK1bFLE4nwCnE2gEU+Jl5IK1LJJEYvzCXA2gUY8JV5KKlDLJkUszifA2QQa8ZR4KalALZsUsTifAGcTaMRT4qWkArVsUsTifAKcTaART4mXkgrUskkRi/MJcDaBRjwlXkoqUMsmRSzOJ8DZBBrxlHgpqUAtmxSxOJ8AZxNoxFPipaQCtWxSxOJ8ApxNoBFPiZeSCtSySRGL8wlwNoFGPCVeSipQyyZFLM4nwNkEGvGUeCmpQC2bFLE4nwBnE2jEU+KlpAK1bFLE4nwCnE2gEU+Jl5IK1LJJEYvzCXA2gUY8JV5KKlDLJkUszifA2QQa8ZR4KalALZsUsTifAGcTaMRT4qWkArVsUsTifAKcTaART4mXkgrUskkRi/MJcDaBRjwlXkoqUMsmRSzOJ8DZBBrxlHgpqUAtmxSxOJ8AZxNoxFPipaQCtWxSxOJ8ApxNoBFPiZeSCtSySRGL8wlwNoFGPCVeSipQyyZFLM4nwNkEGvGUeClteYHaihSXOnE2gUY8JV5KKlAVKAOgEU+Jl5IKVAXKAGjEU+KlpAJVgTIAGvGUeCmpQFWgDIBGPCVeSipQFSgDoBFPiZeSClQFygBoxFPipaQCVYEyABrxlHgpqUBVoAyARjwlXkoqUBUoA6ART4mXkgpUBcoAaMRT4qWkAlWBMgAa8ZR4KalAVaAMgEY8JV5KKlAVKAOgEU+Jl5IKVAXKAGjEU+KlpAJVgTIAGvGUeCmpQFWgDIBGPCVeSipQQ5PiUifOJtCIp8RLSQWqAmUANOIp8VJSgapAGQCNeEq8lFSgKlAGQCOeEi8lFagKlAHQiKfES0kFqgJlADTiKfFSUoGqQBkAjXhKvJRUoCpQBkAjnhIvJRWoCpQB0IinxEtJBaoCZQA04inxUlKBqkAZAI14SryUVKAqUAZAI54SLyUVqAqUAdCIp8RLSQWqAmUANOIp8VJSgapAGQCNeEq8lFSgKlAGQCOeEi8lFagKlAHQiKfES0kFqgJlADTiKfFSUoGqQBkAjXhKvJRUoCpQBkAjnhIvJRWoCpQB0IinxEtJBaoCZQA04inxUlKBqkAZAI14SryUVKAqUAZAI54SLyUVqKFIcakTZxNoxFPipaQCVYEyABrxlHgpqUBVoAyARjwlXkoqUBUoA6ART4mXkgpUBcoAaMRT4qWkAlWBMgAa8ZR4KalAVaAMgEY8JV5KKlAVKAOgEU+Jl5IKVAXKAGjEU+KlpAJVgTIAGvGUeCmpQFWgDIBGPCVeSipQFSgDoBFPiZeSClQFygBoxFPipaQCNTQpLnXibAKNeEq8lNwUaARrLdCh5YQQG4aOQOekf7/08neVJ4AHN0AjnhIvJTdHoBEOKtDOAGcTaMRT4qWkAlWBMgAa8ZR4KalAVaAMgEY8JV5KKlAVKAOgEU+Jl5IKVAXKAGjEU+KlpAJVgTIAGvGUeCmpQFWgDIBGPCVeSipQFSgDoBFPiZeSClQFygBoxFPipaQCVYEyABrxlHgpqUBVoAyARjwlXkoq0A5FygE4m0AjnhIvJRWoCpQB0IinxEtJBUov0EYD4GwCjXhKvJRUoCpQBkAjnhIvJRWoCpQB0IinxEtJBaoCZQA04inxUlKBqkAZAI14SryUVKAqUAZAI54SLyUVKL1JVaCbCjAkXkoqUBUoA6ART4mXkgpUBcoAaMRT4qWkAlWBMgAa8ZR4KalAVaAMgEY8JV5KKlAVKAOgEU+Jl5IKVAXKAGjEU+KlpAJVgTIAGvGUeCmpQFWgDIBGPCVeSipQFSgDoBFPiZeSClQFygBoxFPipaQCVYEyABrxlHgpqUBVoAyARjwlXkoqUHqRqkA3FWBIvJRUoCpQBkAjnhIvJRWoCpQB0IinxEtJBRpLT0GsjcaFAmcTaMRT4qWkAo2lpyDWRuNCgbMJNOIp8VJSgcbSUxBro3GhwNkEGvGUeCmpQGPpKYi10bhQ4GwCjXhKvJRUoL3RUyJ907g+4GwCjXhKvJRUoL3RUyJ907g+4GwCjXhKvJRUoL3RUyJ907g+4GwCjXhKvJRUoL3RUyJ907g+4GwCjXhKvJRUoL3RUyJ907g+4GwCjXhKvJRUoL3RUyJ907g+4GwCjXhKvJRUoL3TUzJ90bgu4GwCjXhKvJRUoOujp4giaVwOcDaBRjwlXkoq0PXRU0SRNC4HOJtAI54SLyUV6ProKaJIGpcDnE2gEU+Jl5IKdH30FFEkjcsBzibQiKfES0kFuj56iiiSxuUAZxNoxFPipaQCXR89RRRJ43KAswk04inxUlKBro+eIoqkcTnA2QQa8ZR4KalA109PUcXuTvlK4GwCjXhKvJRUoOunp6hid6d8JXA2gUY8JV5KKtD101NUsbtTvhI4m0AjnhIvJRXo+ukpqtjdKV8JnE2gEU+Jl5IK9AzpKbPA3SlfCZxNoBFPiZeSCvQM6SmzwN0pXwmcTaART4mXkgr0DOkps8DdKV8JnE2gEU+Jl5IK9AzpKbPA3SlfCZxNoBFPiZeSCvQM6SmzwN0pXwmcTaART4mXkgr0DGldeIS8fXfKVwJnE2jEU+KlpAI9Q1oXHiFv353ylcDZBBrxlHgpqUAHYGHh0TFadqd8JXA2gUY8JV5KKtABWFh4dIyW3SlfCZxNoBFPiZeSCnQAWhceHeey3SlfCZxNoBFPiZeSCnQAWhceHeey3SlfCZxNoBFPiZeSCnQAVi+81TFiV8p/CJxNoBFPiZeSCtQlrY4Ru7IYOwqgEU+Jl5IK1CWtahG7shg7CqART4mXkgrUJa1qC39g35XF2FEAjXhKvJRUoC5pVVv4A/uuLMaOAmjEU+KlpALdcOy7shg7CqART4mXkgp0w7HvxmLsKIBGPCVeSipQCKt3YzF2FEAjnhIvJRXo1rAYOwqgEU+Jl5IKdGtYjB0F0IinxEtJBbo1LMaOAmjEU+KlpALdGhZjRwE04inxUlKBbg0LsTf9Qcctj0itb3CjqQLdBFSgW8NC7K0/0XSLFTsdEV9P4EZTBboJqEC3jiL2xj9p3FD7TreGE5GvDdxoqkA3ARWoWE0PO72QVvsV4b8BEXexljtv3wUL1b/lAh7eISpQFagIYXVaq3Nd+RMd7qL1Jq33sfpRV7vaH+QvZ1mgZ/IgKeU5t++OY1Sg4kxYnVYPcQb8avT5qN0XGHBfrY7tV9gnZ+EPut/nchpfOurrzptY653/ZYACPb2zNx7fuKsCFVtM66/u6l/qiJt2/8n2Al24onUsK1cuLVD7gu3LWLyPfjnrAn15c5xw+Z4KVIhhWMvkDDuWCw/aekXPnHWBHoyv3p0c3x5ffaQCFYLHMGNpf9DW9YWVzxkX6PO99Njz5c1LX6lAhRD9sC0F+nD8Tvb/n6hAhRBu2IgCPRh/lv7/46xIVaBCCA9sQoGe3s6euj/fy18EfS0j4l6H3nkhxMYTX28FG1agQgjhh7Mo0PqJTBFP4deO68UF4Xu/gwAa8ZR4KQ3+FF4FOgS+9zsIoBFPiZeSCtSA68UF4Xu/gwAa8ZR4KRHehV87rhcXhO/9DgJoxFPipXTm54F+Uvl/Fegw+N7vIIBGPCVeSoRPIq0d14sLwvd+BwE04inxUjrjAj29Pb7S+2fh147rxQXhe7+DABrxlHgpnfWXiRyv4duY1o7rxQXhe7+DABrxlHgpnfn3gR7fmfbnjfrxp+/fFdeLC8L3fgcBNOIp8VIifCP92nG9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE0ib6sMwAACRdJREFU4inxUlKBGnC9uCB873cQQCOeEi8lFagB14sLwvd+BwE04inxUnJToOIsee21oVcgVqKQNoDGkFSgdDSbG4BC2gBUoFuJZnMDUEgbgAp0K9FsbgAKaQNQgW4lms0NQCFtACrQrUSzuQEopA1ABbqVaDY3AIW0AahAtxLN5gagkDYAFagQQvSJClQIIQJRgQohRCAqUCGECEQFKoQQgahAhRAiEBWoEEIEogIVQohAVKAwXt4cp1y+l1w6vbM3Ht+4O/ujygUxGC9vvpP9V3s8ympgipBWDJQKFMbzvVLeWfiz7CsXxHAcjKuz2RCPshqaIqQVA6UChfE4Dz7hYHz17uT49vjqo/oFMRSnB+M8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" width="672" /></p>
+</div>
+<div id="final-notes" class="section level3">
+<h3>Final Notes:</h3>
+<ul>
+<li>The dataset now only contains rides where 0 &lt; ride_duration &lt;
+1440.</li>
+<li>Short rides (&lt;= 1 min) with the same start &amp; end station have
+been removed.</li>
+<li>Identified 130+ minutes as possible upper boundary.</li>
+</ul>
 </div>
 </div>
 

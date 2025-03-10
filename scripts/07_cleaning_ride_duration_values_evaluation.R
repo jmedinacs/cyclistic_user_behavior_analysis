@@ -43,19 +43,18 @@ print(summary(cleaned_data$ride_duration))
 # Analyze rides 0 < x < 1
 cat("\nSummary Statistics: Short Rides (<1 minute)\n")
 print(summary(cleaned_data$ride_duration[cleaned_data$ride_duration < 1 ]))
+# Create a table summarizing rides greater than X minutes
+ride_duration_summary <- data.frame(
+  "Duration_Threshold (min)" = 
+    c(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130),
+  "Number of Rides" = 
+    sapply(c(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130), 
+                             function(x) sum(cleaned_data$ride_duration > x))
+)
 
-# Count the number of riders in different long duration ranges
-cat("\nNumber of Rides Greater Than X Minutes:\n")
-cat(" > 20 min:", sum(cleaned_data$ride_duration > 20), "\n")
-cat(" > 30 min:", sum(cleaned_data$ride_duration > 30), "\n")
-cat(" > 40 min:", sum(cleaned_data$ride_duration > 40), "\n")
-cat(" > 50 min:", sum(cleaned_data$ride_duration > 50), "\n")
-cat(" > 60 min:", sum(cleaned_data$ride_duration > 60), "\n")
-cat(" > 70 min:", sum(cleaned_data$ride_duration > 70), "\n")
-cat(" > 80 min:", sum(cleaned_data$ride_duration > 80), "\n")
-cat(" > 90 min:", sum(cleaned_data$ride_duration > 90), "\n")
-cat(" > 100 min:", sum(cleaned_data$ride_duration > 100), "\n")
-cat(" > 130 min:", sum(cleaned_data$ride_duration > 130), "\n") 
+# Display the table
+knitr::kable(ride_duration_summary, caption = "Ride Duration Summary (> X Minutes)")
+
 
 # Ride Duration Quantiles for Extended Rides (90% - 100%)
 cat("\nRide Duration Quantiles for Extended Rides (90%-100%)...\n")
