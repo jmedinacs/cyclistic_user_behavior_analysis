@@ -1,19 +1,64 @@
-# 08_eda_preliminary_general_exploration
-# This script makes a preliminary general exploration and analysis of 
-# ride duration, ride type, and rider type.
+---
+title: "Cyclistic User Behavior Exploratory Data Analysis"
+author: "JohnPaul Medina"
+date: '`r Sys.Date()`'
+output: html_document
+---
 
-# Load configurations and variables
-source("config.R")
+```{r setup, include=FALSE}
+library(here)
+setwd(here::here())  # Forces knitting to use project root
+source(here::here("simulation/simConfig.R"))
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-# Load most recent cleaned dataset
-cleaned_data <- readRDS(cleaned_data_rds) 
+## Exploratory Data Analysis (EDA) Log Introduction
 
-#----------------------------------------------------------
-# Step 1: Evaluate Rider Type Distribution
-#----------------------------------------------------------
-# Compute percentage of casual members
-# Compute percentage of members
+### Objective: 
+This **Exploratory Data Analysis (EDA)** aims to identify key 
+**behavioral differences** between casual riders and annual members, helping 
+shape a marketing strategy to encourage casual riders to convert to membership.
 
+### EDA Focus Areas
+The analysis is structured around the following key focus points:
+
+1. **User Distribution Analysis**
+
+* Compare the **proportion of casual vs. member riders.**
+* Identify the **scale of potential member conversions**
+
+2. **Ride duration Patterns**
+
+* Compare **summary statistics of ride duration** across user types.
+* Determine whether casual **riders take longer trips** and how this insight can 
+can be used for marketing.
+
+3. **Time-Based Trends in Service Usage**
+
+* **Hourly and weekly heatmaps*** to analyze user riding pattern at different 
+times of the day and days of the week.
+* **Seasonal trends** by analyzing monthly ride distributions to evaluate peak 
+demand periods. 
+
+4. **Bike Type Preference & Usage Patterns**
+
+* Identify **bike type preference** between causal and member riders.
+* Explore **ride duration patterns across different bike types.**
+
+Each of these areas will provide insights to support **marketing strategies**, 
+optimize **pricing model**, and improve **customer engagement initiatives.**
+
+---
+
+## Preliminary General Data Exploration**Distribution Analysis
+
+First we will take a look at **rider type distribution** to understand the 
+**size of our data** and how casual versus member riders are distributed.
+
+```{r casual-versus-member-distribution-analysis}
+if (!exists("cleaned_data")) {
+  cleaned_data <- readRDS(cleaned_data_rds)
+}
 
 # Compute Rider Counts
 member_count <- sum(cleaned_data$member_casual == "member")
@@ -22,7 +67,7 @@ total_accounts <- member_count + casual_count
 
 # Create a summary table
 rider_type_summary <- data.frame(
-  Rider_Type = c("Causal Riders", "Member Riders", "Total Riders"),
+  Rider_Type = c("Casual Riders", "Member Riders", "Total Riders"),
   Count = c(casual_count, member_count, total_accounts),
   Percentage = c(
     (casual_count / total_accounts) * 100,
@@ -36,10 +81,8 @@ knitr::kable(rider_type_summary,
              caption = "Rider Type Distribution",
              digits = 2,
              format = "pipe")
-
-
-
-
+```
+```{r member-vs-casual-distribution-visualization}
 # Create a Data Frame for Plotting
 account_counts <- data.frame(
   account_type = c("Casual", "Member"),
@@ -64,12 +107,23 @@ p <- ggplot(account_counts, aes(x = account_type,
 
 # Display the Plot
 print(p)
+```
+### Analysis and Key Insights
 
-#----------------------------------------------------------
-# Step 2: Ride Duration Comparison of Casual vs Member
-#----------------------------------------------------------
-# Compare the summary of each rider type with each other.
+* There is an **uneven distribution** of casual(36.16%) versus member (63.84%)
+riders. 
+*This *high number of casual riders** presents an opportunity for 
+**membership conversion marketing.**
+* To ensure fair comparisons, **percentages or averages** should be used 
+instead of raw counts to avoid skewed results due to the **imbalance between 
+casual and member totals.**
 
+---
+
+Next we will conduct an analysis of ride duration between casual and member 
+riders. 
+
+```{r compare-summary-for-casual-vs-member}
 # Study the summary of ride_duration of casual riders vs annual member riders
 casual_summary <- 
   summary(cleaned_data$ride_duration[cleaned_data$member_casual=="casual"])
@@ -91,12 +145,24 @@ ride_duration_summary <- tidyr::pivot_wider(
   values_from = Value
 )
 
+# Compute Percentage Difference only for Q1, Median, Mean, and Q3
+ride_duration_summary$Percent_Difference <- ifelse(
+  ride_duration_summary$Statistic %in% c("1st Qu.", "Median", "Mean", "3rd Qu."),
+  round(((ride_duration_summary$Casual - ride_duration_summary$Member) / 
+         ride_duration_summary$Member) * 100, 2),
+  NA  # Leave Min and Max without percentage difference
+)
+
 # Display summary table
 knitr::kable(ride_duration_summary,
              caption = "Ride Duration Summary by Rider Type",
              digits = 2,
              format = "pipe")
+```
 
+Bar graph of ride duration summary by rider type
+
+```{r ride-duration-vs-rider-type-summary}
 # Exclude "Max" and "Min" statistics from the data
 summary_data <- summary_data %>% 
   filter(Statistic %in% c("1st Qu.", "Median", "Mean", "3rd Qu."))
@@ -116,8 +182,10 @@ ggplot(summary_data, aes(x = Statistic, y = Value, fill = Rider_Type)) +
        x = "Summary Statistic",
        y = "Ride Duration (Minutes)") +
   theme_light()
+```
+Box plot visualization
 
-
+```{r ride-duration-vs-rider-type-box-plot}
 # Box plot of the summaries of casual vs member ride durations
 ggplot(cleaned_data, aes(x = member_casual, y = ride_duration, fill = member_casual)) +
   geom_boxplot() + 
@@ -129,21 +197,20 @@ ggplot(cleaned_data, aes(x = member_casual, y = ride_duration, fill = member_cas
   ) +
   scale_fill_manual(values = c("casual" = "skyblue", "member" = "darkblue")) + 
   theme_light()
+```
+### Analysis and Key Inisghts
 
+* Based on numerical and visual comparison of the summaries of casual and 
+member ride duration, casual riders tend to use the bike longer than members.
+* The box plot shows that casual riders tend to take longer rides than members.
+* Member ride durations from Q1 to Q3 are contained within a **narrower range**, 
+indicating a more **consistent** riding pattern.
 
-# Note:
-# Visualization confirms that the Q1, Median, and Q3 of casual rider bloxplot is 
-# higher and wider than the member box plot. This does not only confirm that 
-# casual riders tend to ride for a longer period of time, it also shows that 
-# most member riders tend to have a smaller and more predictable ride duration.
+---
 
+Next we will analyze the riders' bike preference.
 
-
-
-#----------------------------------------------------------
-# Step 3: Bike Type Preference Comparison by Rider Type
-#----------------------------------------------------------
-
+```{r ride-type-vs-rider-type-percentage}
 # Compute the percentage of use of ride type based on rider type.
 ride_type_percentage <- cleaned_data %>% 
   group_by(member_casual, rideable_type) %>% 
@@ -152,15 +219,15 @@ ride_type_percentage <- cleaned_data %>%
   mutate(percent = (count / sum(count)) * 100) %>% 
   ungroup()
 
-# Create a formatted table for better readability
+# Convert to a table for better readability
 knitr::kable(
   ride_type_percentage,
   caption = "Bike Type Usage by Rider Type (Percentage Breakdown)",
   digits = 2,
   format = "pipe"
 )
-
-# Visualizing bike type usage
+  
+# Visualize the rideable_type vs member_casual as a bar graph
 ggplot(ride_type_percentage, aes(x = rideable_type, y = percent, fill = member_casual)) +
   geom_col(position = "dodge") +
   labs(
@@ -169,75 +236,12 @@ ggplot(ride_type_percentage, aes(x = rideable_type, y = percent, fill = member_c
     y = "Percentage By Rider Type",
     fill = "Rider Type"
   ) +
-  scale_fill_manual(values = c("casual" = "skyblue", "member" = "darkblue")) +
+  scale_fill_manual(values=c("casual"="skyblue", member="darkblue")) +
   theme_light() + 
   ylim(0, max(ride_type_percentage$percent) + 5) +
-  geom_text(aes(label = sprintf("%.1f%%", percent)),
+  geom_text(aes(label=sprintf("%.1f%%", percent)),
             position = position_dodge(width = 0.9), vjust = -0.5)
-
-
-#----------------------------------------------------------
-# Step 4: Ride Duration by Bike Type & Rider Type
-#----------------------------------------------------------
-
-# Compute average ride duration per bike type **and** rider type
-avg_ride_duration_by_type <- cleaned_data %>%
-  group_by(member_casual, rideable_type) %>%
-  summarise(
-    avg_duration = mean(ride_duration, na.rm = TRUE),
-    median_duration = median(ride_duration, na.rm = TRUE),
-    count = n(),
-    .groups = "drop"
-  ) %>%
-  group_by(member_casual) %>% 
-  mutate(percent_of_rider_type = (count / sum(count)) * 100) %>% 
-  ungroup() %>%
-  arrange(rideable_type, desc(avg_duration))  # Sort for better visualization
-
-# Table: Average Ride Duration per Bike Type and Rider Type (With Percentages)
-knitr::kable(
-  avg_ride_duration_by_type %>% select(-count),  # Remove count column since we now use percentage
-  caption = "Average Ride Duration by Bike Type and Rider Type (Percentage of Rider Type)",
-  digits = 2,
-  format = "pipe"
-)
-
-# Dodge Bar Chart: Ride Duration per Bike Type and Rider Type
-ggplot(avg_ride_duration_by_type, aes(x = rideable_type, y = avg_duration, fill = member_casual)) +
-  geom_col(position = "dodge") +
-  geom_text(aes(label = round(avg_duration, 2)), 
-            position = position_dodge(width = 0.9), 
-            vjust = -0.3, size = 4) +  # Add value labels with padding
-  labs(
-    title = "Average Ride Duration by Bike Type and Rider Type",
-    x = "Bike Type",
-    y = "Average Ride Duration (Minutes)",
-    fill = "Rider Type"
-  ) +
-  scale_fill_manual(values = c("casual" = "skyblue", "member" = "darkblue")) +
-  scale_x_discrete(labels = c("classic_bike" = "Classic Bike", 
-                              "electric_bike" = "Electric Bike", 
-                              "electric_scooter" = "Electric Scooter")) +
-  theme_light() +
-  theme(plot.margin = margin(20, 10, 10, 10))  # Add padding to prevent cutoff
-
-
-#----------------------------------------------------------
-# 🔍 Key Insights:
-#----------------------------------------------------------
-# - The **preference for ride type is nearly identical** for both groups.
-# - **Electric bikes** are slightly more popular than classic bikes.
-# - **Casual riders use classic bikes almost twice as long as members do.**
-# - **Casual riders also tend to take longer rides on e-bikes** than members.
-# - Possible marketing strategy: Highlight the **cost difference for long rides** 
-#   between membership pricing and casual ride pricing.
-# - Consider a **bike reservation feature for members** where they can 
-#   reserve a bike for a short period at a minimal cost.
-
-
-
-
-
+```
 
 
 
