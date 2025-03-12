@@ -1,136 +1,89 @@
-# 🚲 Google Data Analytics Capstone Project: Cyclistic Customer Access Analysis
-## **This project is still a work in progress, this message will be removed when it is completed **
+# Cyclistic Customer Behavior Analysis
 
-This project is part of the **Google Data Analytics Professional Certificate Capstone**. It aims to analyze bike-share data from **Cyclistic** to provide actionable insights for increasing customer memberships.
-
----
-
-## 📌 Project Overview
-
-This repository documents and demonstrates the author's ability to:
-- 🧹 **Clean**: Prepare and process raw data for analysis.
-- 📊 **Analyze**: Uncover trends, patterns, and user behavior insights.
-- 📈 **Visualize**: Create meaningful visualizations to support findings.
-- 📝 **Report**: Communicate results clearly and effectively through structured reporting.
-- 💡 **Recommend**: Propose data-driven strategies to solve a given business problem.
+## **Project Overview**
+Cyclistic, a bike-share program in Chicago, is looking to increase **annual membership subscriptions** by converting casual riders into long-term members. The goal of this project is to analyze customer behavior to provide insights that will help Cyclistic **develop a marketing strategy** aimed at encouraging casual riders to purchase annual memberships.
 
 ---
 
-## 🎯 Business Problem
+## **Business Problem**
+### **Objective**
+To understand how **annual members and casual riders** use Cyclistic bikes differently and what insights can be leveraged to encourage casual riders to purchase an annual membership.
 
-Cyclistic is seeking to increase its membership subscriptions. The objective of this analysis is to uncover insights from historical ride data that can inform strategies for converting casual riders into long-term members.
+### **Key Research Questions**
+1. **Ride Duration Differences**: How do ride durations differ between casual and member riders?
+2. **Time-Based Usage Trends**: When do casual riders use the service most compared to members?
+3. **Bike Type Preferences**: Are casual riders more likely to use a specific bike type compared to members?
+4. **Marketing Insights**: What ride behaviors suggest opportunities for membership conversion?
 
-### 🔍 Business Task:
-> **What are the significant differences in how casual riders and annual members use Cyclistic bikes, and how can we convince casual riders to become annual members?**
-
----
-
-## 🔍 Data Source
-
-The dataset used for this project comes from [**Divvy Bikes**](https://divvybikes.com/system-data), a bike-share service operating in Chicago. The data is used in accordance with the [Divvy Bikes Data License Agreement](https://divvybikes.com/data-license-agreement).
-
----
-
-## 📂 Download the Cleaned Dataset
-
-Due to GitHub's file size limitations, the cleaned and combined dataset is hosted on **Google Drive**.
-
-➡️ [Download Cleaned Dataset](https://drive.google.com/file/d/1Sy7tbEqrMH42J0hrRB24qPHF75l1qxY6/view?usp=sharing)
-
-### 📥 Steps to Use:
-1. Download the dataset from the link above.
-2. Place the downloaded file in the `data/processed/` folder inside the project directory.
-3. Run the analysis scripts as instructed in the repository documentation.
+### **Excluded from Analysis**
+- **Station Popularity & Location-Based Analysis**
+  - The dataset **lacks complete station data** for every ride.
+  - Station availability is **not uniform**, and **docks per station vary**, making comparisons misleading.
+  - Since we **don’t have route tracking data**, we **cannot evaluate where riders went between start and end stations**.
+  - Given these limitations, **station-based insights will not be included** in this analysis.
 
 ---
 
-## 🛠️ Tools and Technologies
-
-- **R**: Data cleaning, transformation, and analysis
-- **R Markdown**: Documentation of analysis steps and insights
-- **Google Sheets**: Logging data cleaning decisions and tracking progress
-- **Tableau**: Advanced visualizations and dashboards
-- **Git & GitHub**: Version control and project collaboration
+## **Data Sources**
+- Monthly trip data from **January 2024 - January 2025**.
+- Data includes **ride start and end times, bike type, and user type (casual/member)**.
+- **Financial information is NOT provided in the dataset** but will be referenced using publicly available pricing details.
+- **Original Data Source**: [Divvy Bikes System Data](https://divvybikes.com/system-data) (Divvy Bikes, a subsidiary of Lyft, releases this dataset under a public data-sharing agreement).
 
 ---
 
-## 🛠️ Data Cleaning Process
+## **Data Cleaning Process**
+The **data cleaning process** ensured accuracy, consistency, and usability for analysis. The full **cleaning log** is available in **[Google Sheets](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)**.
 
-The dataset underwent several cleaning steps to ensure accuracy and consistency:
+### **Cleaning Steps:**
+- **Column Standardization**
+  - Verified **consistent column names** and **data types** across all datasets (Jan 2024 - Jan 2025).
 
-- ✅ Verified that all datasets had consistent column names and data types.
-- 🗑️ Removed duplicate records based on `ride_id`, `started_at`, and `ended_at`.
-- 🕒 Converted date and time columns to the correct `POSIXct` format.
-- 📍 Handled missing values in latitude and longitude by cross-referencing station names.
-- 📆 Removed rides with corrupted or invalid timestamps.
+- **Date & Time Processing**
+  - Converted `started_at` and `ended_at` into **POSIXct format** for accurate time calculations.
 
-For a full breakdown of the data cleaning process and versioned logs, refer to the detailed [Cleaning Log](https://docs.google.com/spreadsheets/d/your-google-sheet-id) hosted on Google Sheets.
+- **Handling Missing Values**
+  - Identified that ~20% of data was missing **start_station_name, start_station_id, end_station_name, and end_station_id**.
+  - **Decision:** Kept these rows for **ride duration and time-based analysis** but excluded them from any station-related analysis.
 
----
+- **Ride Duration Calculation & Validation**
+  - Computed `ride_duration` using `ended_at - started_at`.
+  - Removed invalid rides:
+    - **Negative ride durations**
+    - **Rides ≥ 1440 minutes** (as Divvy considers them lost/stolen)
 
-### 📚 Citation
+- **Outlier Treatment**
+  - Set **130 minutes as an upper bound** for ride duration-focused analysis while keeping all data available.
 
-If you use this data or refer to this project, please cite the dataset as follows:
-
-> Divvy Bikes. (n.d.). *Divvy Bike Sharing Data.* Retrieved from [https://divvybikes.com/system-data](https://divvybikes.com/system-data)
-
-Additionally, acknowledge the usage terms by linking to the [Divvy Bikes Data License Agreement](https://divvybikes.com/data-license-agreement).
----
-
-## 📂 Data Storage & Version Control
-
-This project uses `.gitignore` to **prevent large data files from being committed** to GitHub.  
-Raw and processed data files are stored **locally** in:
-
-- `data/raw/` → Stores the original datasets.
-- `data/processed/` → Stores cleaned and transformed datasets.
-
-### 📌 How to Prepare Your Data Folder
-You **do not** need to manually create these folders.  
-Running `config.R` will automatically generate them.
-
-### 🛑 Why Are Data Files Missing from GitHub?
-To prevent large files from causing issues, we exclude:
-
-```gitignore
-# Ignore raw and processed data
-data/raw/
-data/processed/
-data/**/*.csv  # Ignore all CSV files inside data/
-logs/
-```
+- **Final Cleaned Dataset**
+  - The **cleaned dataset** retains all valid rides for analysis, with **outliers flagged but not removed** for flexibility in further exploration.
 
 ---
 
-## 🚀 Getting Started
+## **Exploratory Data Analysis (EDA)**
+🚧 **Work in Progress** 🚧
 
-### 🛠 Debug Mode for Configuration
-By default, `config.R` suppresses directory path messages.  
-If you need to verify the project paths (for the first run), enable **debug mode** by setting:
+Next, we will conduct **exploratory data analysis (EDA)** to uncover key behavioral patterns, focusing on:
+- Ride duration distribution
+- Bike type preferences
+- Weekly and hourly ride trends
+- Seasonal trends
 
-```r 
-show_paths <- TRUE  # Change to TRUE to print directory paths
-```
----
-
-
-### 📥 Clone the Repository
-1. **Download the project files by cloning the repository:**
-   ```bash
-   git clone https://github.com/jmedinacs/cyclistic_user_behavior_analysis.git
-   cd cyclistic_user_behavior_analysis
-   ```
-
-### 🎓 Run the Analysis
-To begin the analysis, open **RStudio** and run:
-   ```r
-   source("config.R")  # Sets up project paths
-   source("data_cleaning.R")  # Cleans & prepares data
-   source("analysis.R")  # Runs analysis
-   ```
+This section will be updated once EDA is completed.
 
 ---
 
-## ⭐ License
+## **Project Deliverables**
+1. **Data Cleaning Log**: Complete record of all transformations and decisions made during data preparation.
+2. **Exploratory Data Analysis (EDA) Report**: Visualizations and insights into ride duration, bike type usage, and time-based trends.
+3. **Final Report**: Business recommendations based on findings, focused on increasing **membership conversions**.
 
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+---
+
+## **Next Steps**
+- Conduct **EDA** to analyze patterns and validate insights.
+- Develop **visualizations** to compare casual vs. member riders.
+- Begin structuring **marketing recommendations** based on behavioral insights.
+
+🚀 Stay tuned for updates as we progress toward delivering actionable insights for Cyclistic!
+
