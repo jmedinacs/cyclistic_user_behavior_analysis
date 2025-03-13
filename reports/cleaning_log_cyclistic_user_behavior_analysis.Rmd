@@ -344,7 +344,7 @@ as they may still represent valid trips.
  
 ### Handling Long Rides (>= 130 minutes)
 
-* Long rides exceeding 130 minutes make up only 0.05% of total rides.
+* Long rides exceeding 130 minutes make up only 0.5% of total rides.
 
 * While some of these rides may be outliers, others may be valid trips 
 (e.g., tourists, leisure rides, long-distance commutes).

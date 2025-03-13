@@ -5,8 +5,10 @@
 # Load configurations and variables
 source("config.R")
 
-# Load most recent cleaned dataset
-cleaned_data <- readRDS(cleaned_data_rds) 
+# Check if sim_processed_data exists in memory; load from RDS if missing
+if (!exists("cleaned_data")) {
+  cleaned_data <- readRDS(cleaned_data_rds)
+} 
 
 #----------------------------------------------------------
 # Step 1: Evaluate Rider Type Distribution

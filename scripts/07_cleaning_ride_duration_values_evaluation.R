@@ -40,20 +40,32 @@ cat("\nUpdated cleaned dataset successfully saved!\n")
 cat("\nSummary Statistics: Ride Duration (Full Dataset)\n")
 print(summary(cleaned_data$ride_duration))
 
-# Analyze rides 0 < x < 1
-cat("\nSummary Statistics: Short Rides (<1 minute)\n")
-print(summary(cleaned_data$ride_duration[cleaned_data$ride_duration < 1 ]))
-# Create a table summarizing rides greater than X minutes
+# Define duration thresholds for binning
+duration_thresholds <- c(5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130)
+
+# Compute total number of rides
+total_rides <- nrow(cleaned_data)
+
+# Compute the number of rides that are <= each threshold
 ride_duration_summary <- data.frame(
-  "Duration_Threshold (min)" = 
-    c(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130),
-  "Number of Rides" = 
-    sapply(c(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130), 
-                             function(x) sum(cleaned_data$ride_duration > x))
+  "Duration_Threshold (min)" = duration_thresholds,
+  "Number_of_Rides" = sapply(duration_thresholds, function(x) {
+    sum(cleaned_data$ride_duration <= x)
+  })
+)
+
+# Compute the percentage of total rides for each range
+ride_duration_summary$Percentage_of_Total <- round(
+  (ride_duration_summary$Number_of_Rides / total_rides) * 100, 2
 )
 
 # Display the table
-knitr::kable(ride_duration_summary, caption = "Ride Duration Summary (> X Minutes)")
+knitr::kable(
+  ride_duration_summary, 
+  caption = "Ride Duration Summary (Cumulative Intervals) with Percentage",
+  digits = 2,
+  format = "pipe"
+)
 
 
 # Ride Duration Quantiles for Extended Rides (90% - 100%)

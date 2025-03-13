@@ -226,7 +226,9 @@ knitr::kable(
   digits = 2,
   format = "pipe"
 )
-  
+```
+
+```{r bike-type-preference-vs-rider-visualiation}
 # Visualize the rideable_type vs member_casual as a bar graph
 ggplot(ride_type_percentage, aes(x = rideable_type, y = percent, fill = member_casual)) +
   geom_col(position = "dodge") +
@@ -242,6 +244,137 @@ ggplot(ride_type_percentage, aes(x = rideable_type, y = percent, fill = member_c
   geom_text(aes(label=sprintf("%.1f%%", percent)),
             position = position_dodge(width = 0.9), vjust = -0.5)
 ```
+
+### Analysis and Insights
+
+* Both casual and members show a slightly higher preference in e-bikes compared 
+classic bikes which are both nearly half the rides each. 
+* Rental for **e-scooters** are 3.89% for casual riders and 1.52% of the rides 
+for members.
+* In terms of average ride duration, casual riders use the bikes longer than 
+members. Casual rider's classic bike ride duration is more than twice as long 
+as that of member's classic bike rides. 
+
+---
+
+## Binning `ride_duration` 
+
+Analyzing continuous data such as `ride_duration` is important but it can 
+be a cause of noise in some analysis. **Binning continuous data** does not only 
+organize data but it also significantly **reduce noise.**
+
+### Identifying Bin Thresholds
+
+* Based on previous analysis of casual and member `ride_duration` summaries, 
+the **1st quadrtile** values for casual (6.78 minutes) and members (5.14 minutes) 
+indicates that 5 - 7 minutes is a plausible treshold for **short rides**. 
+* Upon examination of data distribution based on selected thresholds 
+(see table below), the number of rides up to the 30 minute mark contains 90.19% 
+of the total ride; this is a plausible threshold for **medium rides**.
+* Using the same table, rides up to the 60-minute mark consists of 97.52% of 
+the data. The 60-minute mark is also a point where the increase in data 
+distribution slows down and thus is chosen as the upper bound for **long rides.**
+* Any ride **beyond 60 minutes** is considered **extended.**
+
+```{r table-of-ride-distribution-based-on-minutes}
+# Define duration thresholds for binning consideration
+duration_thresholds <- c(5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130)
+
+# Compute total number of rides
+total_rides <- nrow(cleaned_data)
+
+# Compute the number of rides that are <= each threshold
+ride_duration_summary <- data.frame(
+  "Duration_Threshold (min)" = duration_thresholds,
+  "Number_of_Rides" = sapply(duration_thresholds, function(x) {
+    sum(cleaned_data$ride_duration <= x)
+  })
+)
+
+# Compute the percentage of total rides for each range
+ride_duration_summary$Percentage_of_Total <- round(
+  (ride_duration_summary$Number_of_Rides / total_rides) * 100, 2
+)
+
+# Display the table
+knitr::kable(
+  ride_duration_summary, 
+  caption = "Ride Duration Summary (Cumulative Intervals) with Percentage",
+  digits = 2,
+  format = "pipe"
+)
+```
+
+An Empirical Cumulative Distribution Function (ECDF) plot supports the 
+logic behind the identified thresholds.
+```{r ECDF-ride_category}
+ggplot(cleaned_data, aes(x = ride_duration)) + 
+  stat_ecdf(geom = "step", color = "blue") + 
+  coord_cartesian(xlim = c(0, 100)) +  # Adjust x-axis to focus on shorter rides
+  geom_vline(xintercept = c(7, 23, 60), linetype = "dashed", color = "red") +
+  labs(
+    title = "Cumulative Distribution of Ride Durations (0-100 min)",
+    x = "Ride Duration (minutes)",
+    y = "Proportion of Rides ≤ X Minutes"
+  ) + 
+  theme_light()
+```
+
+Binning and conversion of `ride_category` to a factor.
+
+```{r binning-and-ride_category-factorization}
+#Ensure that ride_duration is numeric
+cleaned_data <- cleaned_data %>% 
+  mutate(ride_duration = as.numeric(ride_duration))
+
+# Set binning thresholds and add the column
+cleaned_data <- cleaned_data %>% 
+  mutate(ride_category = case_when(
+         ride_duration <= 7 ~ "short",
+         ride_duration <= 30 ~ "medium",
+         ride_duration <= 60 ~ "long",
+         TRUE ~ "extended"
+  ))
+
+# Convert ride_category into a factor for better plotting and order
+cleaned_data <- cleaned_data %>% 
+  mutate(
+    ride_category = factor(ride_category, 
+                           levels=c("short","medium","long","extended"))
+  )
+
+table(cleaned_data$ride_category)
+
+#Update the dataset with the added ride_category
+saveRDS(cleaned_data, file = cleaned_data_rds)
+```
+
+**Visualization** of `ride_category` bins based on percentage of total rides.
+```{r ride_category-visualization}
+ggplot(cleaned_data, aes(x = ride_category, fill = ride_category)) +
+  geom_bar(aes(y = after_stat(count) / sum(after_stat(count)))) + 
+  geom_text(
+    stat = "count", 
+    aes(y = after_stat(count) / sum(after_stat(count)), 
+        label = scales::percent(after_stat(count) / sum(after_stat(count)), accuracy = 0.1)),
+    vjust = -0.5, 
+    size = 5
+  ) + 
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Proportion of Ride Categories",
+    x = "Ride Category",
+    y = "Percentage of Total Rides"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("short" = "blue", "medium" = "green", 
+                               "long" = "orange", "extended" = "red")) +
+  theme(
+    plot.margin = margin(20, 20, 20, 20)  # Adds padding to prevent cutoff
+  )
+```
+
+
 
 
 
