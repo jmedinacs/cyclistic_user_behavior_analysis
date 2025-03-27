@@ -113,11 +113,10 @@ print(day_of_week_percent)
 plot_ride_percentage <- ggplot(day_of_week_percent, 
                                aes(x = day_of_week, y = percentage, fill = member_casual)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.6) +  # Dodge for side-by-side bars
-  geom_text(aes(label = sprintf("%.1f%%", percentage)), 
-            position = position_dodge(width = 0.6), 
-            vjust = -0.3, size = 5, fontface = "bold") +  
   scale_fill_manual(values = c("casual" = "skyblue", "member" = "lightgreen")) +  # Custom colors
-  scale_y_continuous(labels = scales::percent_format(scale = 1)) +  # Convert y-axis to percentage
+  scale_y_continuous(labels = scales::percent_format(scale = 1), 
+                     breaks = seq(0, max(day_of_week_percent$percentage), 
+                                  by = 2)) +  # Convert y-axis to percentage
   labs(
     title = "Percentage of Rides by Day of the Week",
     x = "Day of the Week",
@@ -160,7 +159,7 @@ plot_hourly_heatmap <- ggplot(hourly_rides_summary,
   scale_fill_gradient(low = "lightyellow", high = "red") +  # Heatmap color scheme
   scale_x_continuous(breaks = seq(0, 23, by = 2)) + # Show labels at intervals of 2 hours
   labs(
-    title = "Hourly Ride Start Trends",
+    title = "Hourly Ride Start Trends (all riders)",
     x = "Hour of the Day",
     y = "Day of the Week",
     fill = "Ride Count"
@@ -195,7 +194,7 @@ casual_rides_summary <- cleaned_data %>%
 plot_casual_heatmap <- ggplot(casual_rides_summary, 
                               aes(x = start_hour, y = fct_rev(day_of_week), fill = ride_count)) +
   geom_tile(color = "white") +  # Adds gridlines for readability
-  scale_fill_gradient(low = "lightyellow", high = "red") +  # Heatmap color scheme
+  scale_fill_gradient(low = "lightyellow", high = "red",) +  # Heatmap color scheme
   scale_x_continuous(breaks = seq(0, 23, by = 2)) +  # Adjust x-axis to show every 2 hours
   labs(
     title = "Hourly Ride Start Trends (Casual Riders Only)",

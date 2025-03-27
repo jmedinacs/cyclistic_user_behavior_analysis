@@ -21,6 +21,7 @@ processed_data_dir <- file.path(data_dir, "processed")
 scripts_dir <- file.path(project_dir, "scripts")
 reports_dir <- file.path(project_dir, "reports")
 output_dir <- file.path(project_dir, "output")
+visualization_dir <- file.path(project_dir, "visualization")
 
 # Create directories if they don’t exist
 dir.create(raw_data_dir, showWarnings = FALSE, recursive = TRUE)
@@ -28,6 +29,7 @@ dir.create(processed_data_dir, showWarnings = FALSE, recursive = TRUE)
 dir.create(scripts_dir, showWarnings = FALSE, recursive = TRUE)
 dir.create(reports_dir, showWarnings = FALSE, recursive = TRUE)
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(visualization_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Define paths for processed dataset storage
 combined_raw_data_file <- file.path(processed_data_dir, "cyclistic_combined_raw.rds")
