@@ -447,12 +447,6 @@ sim_same_station_rides_after <- sum(
 )
 
 cat("\nVerification - Short rides where start and end station are the same after removal:", sim_same_station_rides_after, "\n")
-
-
-# Save the current version of the RDS
-saveRDS(sim_cleaned_data,file.path(sim_processed_data_dir, 
-                                   "sim_ride_duration_cleaned_data.rds"))
-cat("\nUpdated cleaned dataset successfully saved!\n")
 ```
 ```{r investigate-extended-ride}
 # --------------------------------------------------------------
@@ -487,10 +481,46 @@ ggplot(sim_cleaned_data %>% filter(ride_duration >= 130), aes(x = ride_duration)
        x = "Ride Duration (mins)", y = "Count")
 ```
 
+
+## Adding the `day_of_week` Column  
+
+To analyze **time-based rider behavior**, we extracted the **day of the week**  
+for each ride using the `wday()` function on the `started_at` timestamp.  
+
+### Why This Matters:
+* **Hourly trends** – Understanding peak riding hours.  
+* **Day-of-week trends** – Identifying high-demand days.  
+* **Seasonal patterns** – Exploring how ridership fluctuates over months.  
+
+
+```{r day_of_week column}
+
+# Apply the function to the entire dataset
+sim_cleaned_data <- sim_cleaned_data %>% 
+  mutate(day_of_week = wday(started_at, label = TRUE, abbr = FALSE))
+
+# Quick check of distribution
+table(sim_cleaned_data$day_of_week)
+
+
+# Save the current version of the RDS
+saveRDS(sim_cleaned_data,file.path(sim_processed_data_dir, 
+                                   "sim_ride_duration_cleaned_data.rds"))
+cat("\nUpdated cleaned dataset successfully saved!\n")
+```
+
+
+
 ### Final Notes:
 * The dataset now only contains rides where 0 < ride_duration < 1440.
-* Short rides (<= 1 min) with the same start & end station have been removed.
-* Identified 130+ minutes as possible upper boundary. 
+* Short rides (< 0 min) have been removed.
+* **Final ride duration bins identified:**  
+  - **Short:** ≤7 minutes  
+  - **Medium:** 8–30 minutes  
+  - **Long:** 31–60 minutes  
+  - **Extended:** 60+ minutes  
+* The previous **130+ min** threshold was an initial consideration but was refined during EDA.  
+* `ride_duration` and `day_of_week` columns added. 
 
 
 

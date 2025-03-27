@@ -12,6 +12,8 @@ source(here::here("simulation/simConfig.R"))
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#  Uncovering Cyclistic Rider Patterns: An Exploratory Data Analysis
+
 ## Exploratory Data Analysis (EDA) Log Introduction
 
 ### Objective: 
@@ -245,7 +247,7 @@ ggplot(ride_type_percentage, aes(x = rideable_type, y = percent, fill = member_c
             position = position_dodge(width = 0.9), vjust = -0.5)
 ```
 
-### Analysis and Insights
+### Analysis and Key Insights
 
 * Both casual and members show a slightly higher preference in e-bikes compared 
 classic bikes which are both nearly half the rides each. 
@@ -311,7 +313,9 @@ logic behind the identified thresholds.
 ggplot(cleaned_data, aes(x = ride_duration)) + 
   stat_ecdf(geom = "step", color = "blue") + 
   coord_cartesian(xlim = c(0, 100)) +  # Adjust x-axis to focus on shorter rides
-  geom_vline(xintercept = c(7, 23, 60), linetype = "dashed", color = "red") +
+  geom_vline(xintercept = c(7, 30, 60), linetype = "dashed", color = "red") +
+  annotate("text", x = 50, y = 0.05, label = "Thresholds: 7, 30, 60 min", 
+         color = "red", size = 5, fontface = "bold", hjust = 0.5) +
   labs(
     title = "Cumulative Distribution of Ride Durations (0-100 min)",
     x = "Ride Duration (minutes)",
@@ -346,7 +350,7 @@ cleaned_data <- cleaned_data %>%
 table(cleaned_data$ride_category)
 
 #Update the dataset with the added ride_category
-saveRDS(cleaned_data, file = cleaned_data_rds)
+#saveRDS(cleaned_data, file = cleaned_data_rds) - commented out for demo
 ```
 
 **Visualization** of `ride_category` bins based on percentage of total rides.
@@ -374,6 +378,17 @@ ggplot(cleaned_data, aes(x = ride_category, fill = ride_category)) +
   )
 ```
 
+
+### Analysis and Key Insights
+* **90.19% of rides** are 30 minutes or shorter, thus the interval 7 - 30 
+minutes is an appropriate choice for "medium" duration type of ride.
+* The **ECDF plot** confirms that ride duration growth slows dramatically 
+after the 60 minute mark. 
+* With **ride categories now set**, we can begin the analysis of **time-based** 
+rider behaviors to discover trends in peak usage, hourly demands, daily demands, 
+and seasonal ride fluctuations. 
+
+---
 
 
 

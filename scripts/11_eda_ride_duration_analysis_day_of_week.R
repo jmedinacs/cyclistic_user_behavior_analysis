@@ -6,8 +6,10 @@
 # Load configurations and variables.
 source("config.R")
 
-# Load the most recent version of the cleaned_data RDS
-cleaned_data <- readRDS(cleaned_data_rds)
+# Check if sim_processed_data exists in memory; load from RDS if missing
+if (!exists("cleaned_data")) {
+  cleaned_data <- readRDS(cleaned_data_rds)
+} 
 
 # Compute ride duration summary by day of week for casual riders
 casual_summary <- cleaned_data %>% 
@@ -45,8 +47,6 @@ ride_duration_summary <- bind_rows(casual_summary, member_summary)
 # Display summary as a table
 pander(ride_duration_summary, 
        caption = "Ride Duration Summary by Day of the Week (Casual vs. Member)")
-
-print(min(cleaned_data$ride_duration))
 
 # Analysis of medians each day of the week
 median_ride_duration_summary <- ride_duration_summary %>% 
@@ -93,5 +93,261 @@ plot_median_duration <- ggplot(median_ride_duration_summary,
 print(plot_median_duration)
 
 # Save the plot
-ggsave(filename = file.path(output_dir, "median_ride_duration_by_day.png"), 
+ggsave(filename = file.path(visualization_dir, "median_ride_duration_by_day.png"), 
        plot = plot_median_duration, width = 8, height = 6, dpi = 300)
+
+
+# Compute ride percentages within each rider type
+day_of_week_percent <- cleaned_data %>% 
+  group_by(member_casual, day_of_week) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  group_by(member_casual) %>% 
+  mutate(percentage = (count / sum(count)) * 100) %>% 
+  ungroup()
+
+# Print summary table
+print(day_of_week_percent)
+
+
+# Create a grouped bar chart for ride percentage per day
+plot_ride_percentage <- ggplot(day_of_week_percent, 
+                               aes(x = day_of_week, y = percentage, fill = member_casual)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.6) +  # Dodge for side-by-side bars
+  geom_text(aes(label = sprintf("%.1f%%", percentage)), 
+            position = position_dodge(width = 0.6), 
+            vjust = -0.3, size = 5, fontface = "bold") +  
+  scale_fill_manual(values = c("casual" = "skyblue", "member" = "lightgreen")) +  # Custom colors
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +  # Convert y-axis to percentage
+  labs(
+    title = "Percentage of Rides by Day of the Week",
+    x = "Day of the Week",
+    y = "Percentage of Total Rides (Within Each Rider Type)",
+    fill = "Rider Type"
+  ) +
+  theme_light() +
+  theme(
+    plot.margin = margin(15, 15, 15, 15),
+    text = element_text(size = 14),
+    legend.title = element_text(size = 12),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5,
+                              margin = margin(b=15)),
+    panel.grid.major = element_line(color = "gray80"),
+    panel.grid.minor = element_blank()
+  )
+
+# Display the percentage-based plot
+print(plot_ride_percentage)
+
+ggsave(filename = file.path(visualization_dir, "percentage_rides_by_day.png"), 
+       plot = plot_ride_percentage, width = 10, height = 6, dpi = 300)
+
+
+# Analysis of hourly bike use during the week as a heatmap
+
+# Extract hour of the day from ride start time
+cleaned_data <- cleaned_data %>%
+  mutate(start_hour = hour(started_at))  # Extract hour (0-23)
+
+# Summarize total ride counts by hour and day of week
+hourly_rides_summary <- cleaned_data %>%
+  group_by(day_of_week, start_hour) %>%
+  summarise(ride_count = n(), .groups = "drop")
+
+# Create a heatmap using ggplot
+plot_hourly_heatmap <- ggplot(hourly_rides_summary, 
+                              aes(x = start_hour, y = fct_rev(day_of_week), fill = ride_count)) +
+  geom_tile(color = "white") +  # Adds gridlines
+  scale_fill_gradient(low = "lightyellow", high = "red") +  # Heatmap color scheme
+  scale_x_continuous(breaks = seq(0, 23, by = 2)) + # Show labels at intervals of 2 hours
+  labs(
+    title = "Hourly Ride Start Trends",
+    x = "Hour of the Day",
+    y = "Day of the Week",
+    fill = "Ride Count"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    text = element_text(size = 14),
+    axis.text.y = element_text(size = 12),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    panel.grid.major = element_blank(),  
+    panel.grid.minor = element_blank()
+  )
+
+# Display the heatmap
+print(plot_hourly_heatmap)
+
+ggsave(filename = file.path(visualization_dir, "hourly_ride_heatmap.png"), 
+       plot = plot_hourly_heatmap, width = 10, height = 6, dpi = 300)
+
+
+
+# Casual riders heatmap 
+# Filter dataset for only casual riders
+casual_rides_summary <- cleaned_data %>%
+  filter(member_casual == "casual") %>%
+  group_by(day_of_week, start_hour) %>%
+  summarise(ride_count = n(), .groups = "drop")
+
+# Generate the heatmap for casual riders
+plot_casual_heatmap <- ggplot(casual_rides_summary, 
+                              aes(x = start_hour, y = fct_rev(day_of_week), fill = ride_count)) +
+  geom_tile(color = "white") +  # Adds gridlines for readability
+  scale_fill_gradient(low = "lightyellow", high = "red") +  # Heatmap color scheme
+  scale_x_continuous(breaks = seq(0, 23, by = 2)) +  # Adjust x-axis to show every 2 hours
+  labs(
+    title = "Hourly Ride Start Trends (Casual Riders Only)",
+    x = "Hour of the Day",
+    y = "Day of the Week",
+    fill = "Ride Count"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    text = element_text(size = 14),
+    axis.text.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+# Display the heatmap
+print(plot_casual_heatmap)
+
+ggsave(filename = file.path(visualization_dir, "casual_rider_hourly_heatmap.png"), 
+       plot = plot_casual_heatmap, width = 10, height = 6, dpi = 300)
+
+
+
+
+# Electric bike usage heatmap
+electric_data <- cleaned_data %>% 
+  filter(rideable_type == "electric_bike")
+# All Riders
+# Summarize electric bike rides by day_of_week and start_hour for all riders
+electric_rides_all <- electric_data %>% 
+  group_by(day_of_week, start_hour) %>% 
+  summarise(ride_count = n(), .groups = "drop")
+
+# Create the heatmap for all riders using electric bikes
+plot_electric_all <- ggplot(electric_rides_all, 
+                            aes(x = start_hour, y = fct_rev(day_of_week), fill = ride_count)) +
+  geom_tile(color = "white") +  # Adds white borders for clarity
+  scale_fill_gradient(low = "lightyellow", high = "red") +  # Color gradient for ride count
+  scale_x_continuous(breaks = seq(0, 23, by = 2)) +         # X-axis labels every 2 hours
+  labs(
+    title = "Hourly Electric Bike Usage (All Riders)",
+    x = "Hour of the Day",
+    y = "Day of the Week",
+    fill = "Ride Count"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    text = element_text(size = 14),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12)
+  )
+
+# Display the plot
+print(plot_electric_all)
+
+ggsave(filename = file.path(visualization_dir, "electric_bike_heatmap_all.png"), 
+       plot = plot_electric_all, width = 10, height = 6, dpi = 300)
+
+
+
+
+
+
+# Casual Riders Only Electric Bike Heatmap
+# Filter for casual riders only from the electric bike data
+electric_data_casual <- electric_data %>% 
+  filter(member_casual == "casual")
+
+# Summarize electric bike rides by day_of_week and start_hour for casual riders
+electric_rides_casual <- electric_data_casual %>% 
+  group_by(day_of_week, start_hour) %>% 
+  summarise(ride_count = n(), .groups = "drop")
+
+# Create the heatmap for casual riders using electric bikes
+plot_electric_casual <- ggplot(electric_rides_casual, 
+                               aes(x = start_hour, y = fct_rev(day_of_week), fill = ride_count)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightyellow", high = "red") +
+  scale_x_continuous(breaks = seq(0, 23, by = 2)) +
+  labs(
+    title = "Hourly Electric Bike Usage (Casual Riders Only)",
+    x = "Hour of the Day",
+    y = "Day of the Week",
+    fill = "Ride Count"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    text = element_text(size = 14),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12)
+  )
+
+# Display the casual riders' heatmap
+print(plot_electric_casual)
+
+ggsave(filename = file.path(visualization_dir, "electric_bike_heatmap_casual.png"), 
+       plot = plot_electric_casual, width = 10, height = 6, dpi = 300)
+
+
+
+# Extract the month and create a summary dataset
+monthly_rides <- cleaned_data %>%
+  mutate(month = month(started_at, label = TRUE, abbr = FALSE)) %>%  # Extract full month name
+  group_by(member_casual, month) %>%
+  summarise(ride_count = n(), .groups = "drop") %>%
+  mutate(month = factor(month, levels = month.name))  # Ensure correct order (Jan–Dec)
+
+# Convert to wide format and add a total column
+monthly_rides_table <- monthly_rides %>%
+  pivot_wider(names_from = member_casual, values_from = ride_count) %>%
+  mutate(Total = casual + member)  # Sum casual and member rides
+
+# Print the table
+knitr::kable(
+  monthly_rides_table, 
+  caption = "Monthly Ride Counts by Rider Type (With Totals)",
+  digits = 0,
+  format = "pipe"  # Use "html" for a styled table in R Markdown
+)
+
+
+# Create the line graph for monthly trends
+plot_monthly_trends <- ggplot(monthly_rides, aes(x = month, y = ride_count, group = member_casual, color = member_casual)) +
+  geom_line(size = 1.2) +  # Line thickness
+  geom_point(size = 3) +   # Add markers at each month
+  scale_y_continuous(labels = scales::label_number(scale = 1e-6, suffix = "M")) +  # Format Y-axis as 1M, 2M, etc.
+  scale_color_manual(values = c("casual" = "skyblue", "member" = "lightgreen")) +  # Set colors
+  labs(
+    title = "Monthly Ride Trends (Casual vs. Members)",
+    x = "Month",
+    y = "Total Ride Count",
+    color = "Rider Type"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis for readability
+    text = element_text(size = 14)
+  )
+
+# Display the graph
+print(plot_monthly_trends)
+
+# Save the plot as an image
+ggsave(filename = file.path(visualization_dir, "monthly_ride_trends.png"), 
+       plot = plot_monthly_trends, width = 10, height = 6, dpi = 300)
+
+
+

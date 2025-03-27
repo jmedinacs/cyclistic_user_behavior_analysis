@@ -5,6 +5,9 @@ library(ggplot2)
 library(dplyr)
 library(knitr)
 library(lubridate)
+library(pander)
+library(forcats)
+library(scales)
 
 # Define base project directory, location of config.R considered base location
 project_dir <- here::here()

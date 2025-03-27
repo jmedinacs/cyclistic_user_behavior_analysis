@@ -91,13 +91,16 @@ knitr::kable(
 ggplot(cleaned_data, aes(x = ride_duration)) + 
   stat_ecdf(geom = "step", color = "blue") + 
   coord_cartesian(xlim = c(0, 100)) +  # Adjust x-axis to focus on shorter rides
-  geom_vline(xintercept = c(7, 23, 60), linetype = "dashed", color = "red") +
+  geom_vline(xintercept = c(7, 30, 60), linetype = "dashed", color = "red") +
+  annotate("text", x = 50, y = 0.05, label = "Thresholds: 7, 30, 60 min", 
+           color = "red", size = 5, fontface = "bold", hjust = 0.5) + 
   labs(
     title = "Cumulative Distribution of Ride Durations (0-100 min)",
     x = "Ride Duration (minutes)",
     y = "Proportion of Rides ≤ X Minutes"
   ) + 
   theme_light()
+
 
 # 90.19% of the number of rides occur on or before the 30 minute mark, this is
 # a good candidate for "medium" rides as it represents a significant amount of 
@@ -132,18 +135,6 @@ cleaned_data <- cleaned_data %>%
   )
 
 table(cleaned_data$ride_category)
-
-ggplot(cleaned_data, aes(x = ride_category, fill = ride_category))+
-  geom_bar()+
-  labs(
-    title = "Distribution of Ride Categories",
-    x = "Ride Category",
-    y = "Count of Rides"
-  ) +
-  theme_minimal() +
-  scale_fill_manual(values = c("short" = "blue", "medium" = "green", 
-                               "long" = "orange", "extended" = "red"))
-
 
 
 ggplot(cleaned_data, aes(x = ride_category, fill = ride_category)) +
