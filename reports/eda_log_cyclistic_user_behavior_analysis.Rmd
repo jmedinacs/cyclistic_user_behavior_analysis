@@ -775,11 +775,75 @@ print(plot_electric_casual)
 commute hours in the morning and afternoon and also on the weekends.
 * The highest usage is Wednesday at 17:00 when lookingat the all rides 
 heatmap.
-* **Casual riders** tend to heavily use an eBike on Saturdays but the casual 
-riders heatmap also shows that eBike usage is high **Wednesday to Friday** 
-during the **afternoon commute hours**.
+* Casual riders tend to heavily use eBikes on Saturdays and during afternoon 
+commute hours, Wednesdays through Fridays.
 * Highlighting the member eBike pricing rate would be a strong benefit to 
 market in order to convince casual riders to sign up for membership.
 
 ## Seasonal Rider Usage Analysis
-This section will evaluate the riding behavior of 
+This section will evaluate the riding behavior of casual riders and members 
+throughout the year. 
+```{r casual-vs-member-riding-trend-year-table , warning=FALSE}
+# Extract the month and create a summary dataset
+monthly_rides <- cleaned_data %>%
+  mutate(month = month(started_at, label = TRUE, abbr = FALSE)) %>%  # Extract full month name
+  group_by(member_casual, month) %>%
+  summarise(ride_count = n(), .groups = "drop") %>%
+  mutate(month = factor(month, levels = month.name))  # Ensure correct order (Jan–Dec)
+
+# Convert to wide format and add a total column
+monthly_rides_table <- monthly_rides %>%
+  pivot_wider(names_from = member_casual, values_from = ride_count, values_fill = 0) %>%
+  mutate(
+    Total = casual + member,  # Sum casual and member rides
+    Percentage = (Total / sum(Total)) * 100  # Calculate percentage of total rides
+  )
+
+# Print the table with better formatting
+kable(
+  monthly_rides_table, 
+  caption = "Monthly Ride Counts by Rider Type (With Totals and Percentage)",
+  digits = 1,
+  format = "html"
+) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(1, bold = TRUE) %>%
+  column_spec(5, width = "10em")
+```
+```{r casual-vs-member-riding-trend-year-line-graph}
+# Create the line graph for monthly trends
+plot_monthly_trends <- ggplot(monthly_rides, aes(x = month, y = ride_count, group = member_casual, color = member_casual)) +
+  geom_line(linewidth = 1.2) +  # Line thickness
+  geom_point(size = 3) +   # Add markers at each month
+  scale_y_continuous(labels = scales::label_number(scale = 1e-6, suffix = "M")) +  # Format Y-axis as 1M, 2M, etc.
+  scale_color_manual(values = c("casual" = "skyblue", "member" = "lightgreen")) +  # Set colors
+  labs(
+    title = "Monthly Ride Trends (Casual vs. Members)",
+    x = "Month",
+    y = "Total Ride Count",
+    color = "Rider Type"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis for readability
+    text = element_text(size = 14)
+  )
+
+# Display the graph
+print(plot_monthly_trends)
+```
+### Analysis and Key Insights
+* The **majority of rides** occur from **May to October**. This suggests that 
+bike usage is highly seasonal. 
+* Both casual and member riding behavior throughout the year are similar except 
+for January to February where casual rider count is low. 
+* Number of rides **increase** starting in March, **peaks** in September, and 
+**decline sharply** in October to December. 
+* Casual rider count increase and decrease are **larger and sharper** compared 
+to member ridership fluctuations. 
+* Casual ridership is more seasonal than member ridership but this may present 
+an opportunity to explore seasonal membership. 
+* While ridership falls drastically during the winter months, members maintain 
+some level of **year round usage.**
+

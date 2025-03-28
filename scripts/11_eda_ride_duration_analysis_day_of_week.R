@@ -311,20 +311,24 @@ monthly_rides <- cleaned_data %>%
 # Convert to wide format and add a total column
 monthly_rides_table <- monthly_rides %>%
   pivot_wider(names_from = member_casual, values_from = ride_count) %>%
-  mutate(Total = casual + member)  # Sum casual and member rides
+  mutate(
+    Total = casual + member,  # Sum casual and member rides
+    Percentage = (Total / sum(Total)) * 100  # Calculate percentage of total rides
+  )
 
-# Print the table
+# Print the table with percentage
 knitr::kable(
   monthly_rides_table, 
-  caption = "Monthly Ride Counts by Rider Type (With Totals)",
-  digits = 0,
-  format = "pipe"  # Use "html" for a styled table in R Markdown
+  caption = "Monthly Ride Counts by Rider Type (With Totals and Percentage)",
+  digits = 1,
+  format = "pipe"  
 )
+
 
 
 # Create the line graph for monthly trends
 plot_monthly_trends <- ggplot(monthly_rides, aes(x = month, y = ride_count, group = member_casual, color = member_casual)) +
-  geom_line(size = 1.2) +  # Line thickness
+  geom_line(linewidth = 1.2) +  # Line thickness
   geom_point(size = 3) +   # Add markers at each month
   scale_y_continuous(labels = scales::label_number(scale = 1e-6, suffix = "M")) +  # Format Y-axis as 1M, 2M, etc.
   scale_color_manual(values = c("casual" = "skyblue", "member" = "lightgreen")) +  # Set colors
