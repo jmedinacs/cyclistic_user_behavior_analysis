@@ -839,7 +839,7 @@ bike usage is highly seasonal.
 * Both casual and member riding behavior throughout the year are similar except 
 for January to February where casual rider count is low. 
 * Number of rides **increase** starting in March, **peaks** in September, and 
-**decline sharply** in October to December. 
+**decline sharply** in October to February. 
 * Casual rider count increase and decrease are **larger and sharper** compared 
 to member ridership fluctuations. 
 * Casual ridership is more seasonal than member ridership but this may present 

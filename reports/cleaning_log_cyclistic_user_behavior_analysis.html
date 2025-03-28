@@ -11,7 +11,7 @@
 
 <meta name="author" content="JohnPaul Medina" />
 
-<meta name="date" content="2025-03-26" />
+<meta name="date" content="2025-03-27" />
 
 <title>Cleaning Log - Cyclistic Customer Behavior Analysis</title>
 
@@ -353,24 +353,25 @@ display: none;
 <h1 class="title toc-ignore">Cleaning Log - Cyclistic Customer Behavior
 Analysis</h1>
 <h4 class="author">JohnPaul Medina</h4>
-<h4 class="date">2025-03-26</h4>
+<h4 class="date">2025-03-27</h4>
 
 </div>
 
 
 <div id="cleaning-log-introduction" class="section level2">
 <h2>Cleaning Log Introduction</h2>
-<p>This cleaning log is a demonstration and report of all the cleaning
-steps that were done to the dataset in the fulfillment of this analysis
-project. The dataset consists of thirteen columns that make up a profile
-of each Divvy Bikes Chicago bike rental ride. The project’s goal is to
-gain an insight on the differences in the behavior of casual riders
-versus member riders in order to make data-driven recommendations on how
-to encourage casual riders to become members.</p>
+<p>This cleaning log is a demonstration and report of all cleaning steps
+performed on the dataset as part of this analysis project. The dataset
+consists of thirteen columns that make up a profile of each Divvy Bikes
+Chicago bike-share service ride log.</p>
+<p>The project’s goal is to analyze behavioral differences between
+casual and member riders to develop data-driven recommendations for
+increasing membership conversion.</p>
 <p>NOTE: The script shown are the simulation version, thus every saved
 RDS pertains to that script/chunk to preserve the value at that specific
 point of the project. In the live version, the most current version is
 always saved and updated using the same file.</p>
+<hr />
 </div>
 <div id="detailed-spreadsheet-logs" class="section level2">
 <h2>Detailed Spreadsheet Logs</h2>
@@ -428,7 +429,7 @@ str(jan_2024)</code></pre>
 </div>
 <div id="column-name-check" class="section level3">
 <h3>Column Name Check</h3>
-<p>This chunk comfirms that all the column names across all dataset have
+<p>This chunk confirms that all the column names across all dataset have
 consistent names.</p>
 <pre class="r"><code># Function that checks if all the column names are exactly the same
 check_column_names &lt;- function(directory){
@@ -456,8 +457,8 @@ check_column_names(sim_raw_data_dir)</code></pre>
 </div>
 <div id="column-data-type-check" class="section level3">
 <h3>Column Data Type Check</h3>
-<p>This chunk confirms that all the columns in every dataset have the
-same corresponding data types.</p>
+<p>This step ensures that all datasets maintain consistent column data
+types.</p>
 <pre class="r"><code># This function checks if all the data types in each column of every dataset
 # is the same type. This will print the mismatched data types if found. 
 check_data_types &lt;- function(directory) {
@@ -492,8 +493,8 @@ check_data_types(sim_raw_data_dir)</code></pre>
 <p>The chunk combines all the dataset into one dataset while also
 ensuring that every missing data is set to NA for consistency and data
 accuracy when the analysis work begins.</p>
-<p>As seen in the output, the head and tail of the combined dataset
-shows data from January 2024 and January 2025.</p>
+<p>The output confirms that the combined dataset spans from January 2024
+to January 2025.</p>
 <pre class="r"><code># Compile all csv file names  from the sim_raw_data_dir
 sim_raw_files &lt;- list.files(path=sim_raw_data_dir,pattern=&quot;*.csv&quot;, 
                             full.names=TRUE)
@@ -557,11 +558,6 @@ tail(sim_combined_dataset)</code></pre>
 ## 5999255 -87.63427        member
 ## 5999256 -87.60096        casual
 ## 5999257 -87.63427        casual</code></pre>
-<pre class="r"><code># Save an RDS version of the dataset for optimal loading and access
-saveRDS(sim_combined_dataset, file.path(sim_processed_data_dir, &quot;sim_combined_raw_data.rds&quot;))
-# Save a csv version of the dataset for sharing
-write.csv(sim_combined_dataset, 
-          file.path(sim_processed_data_dir, &quot;sim_combined_raw_data.csv&quot;),row.names = FALSE)</code></pre>
 <hr />
 </div>
 <div id="convert-character-dates-to-posixct" class="section level2">
@@ -596,20 +592,14 @@ print(&quot;started_at column preview&quot;)</code></pre>
 <pre><code>## [1] &quot;ended_at column preview&quot;</code></pre>
 <pre class="r"><code>str(sim_processed_data$ended_at)</code></pre>
 <pre><code>##  POSIXct[1:5999257], format: &quot;2024-01-12 15:37:59&quot; &quot;2024-01-08 15:52:59&quot; &quot;2024-01-27 12:35:19&quot; ...</code></pre>
-<pre class="r"><code># Save processed data as RDS, given specific name for this simulation
-saveRDS(sim_processed_data, 
-        file.path(sim_processed_data_dir,&quot;processed_combined_data_posixct.rds&quot;))
-
-message(&quot;RDS file saved successfully: processed_combined_data_posixct.rds&quot;)</code></pre>
-<pre><code>## RDS file saved successfully: processed_combined_data_posixct.rds</code></pre>
 <hr />
 </div>
 <div id="check-for-missing-values-for-each-column" class="section level2">
 <h2>Check for Missing Values for Each Column</h2>
 <p>The next step is to check for missing values in each column. This is
 an essential step in verifying data completeness and integrity.</p>
-<div id="evaluation" class="section level4">
-<h4>Evaluation</h4>
+<div id="evaluation" class="section level3">
+<h3>Evaluation</h3>
 <p>The chunk shows that about <strong>20%</strong> of the data contains
 missing start_station_id, start_station_name, end_station_name, and
 end_station_id. This amount of data is <strong>not negligible</strong>,
@@ -722,21 +712,15 @@ knitr::kable(sim_missing_summary, caption = &quot;Missing Values Summary by Colu
 </tr>
 </tbody>
 </table>
-<pre class="r"><code># Save the summary for documentation
-write.csv(sim_missing_summary, file.path(sim_processed_data_dir,
-    &quot;sim_missing_values_summary.csv&quot;))
-cat(&quot;Missing values summary saved in processed folder.\n&quot;)</code></pre>
-<pre><code>## Missing values summary saved in processed folder.</code></pre>
 <hr />
 </div>
 </div>
 <div id="trimming-whitespace-and-standardizing-the-member_casual-column" class="section level2">
 <h2>Trimming Whitespace and Standardizing the <code>member_casual</code>
 Column</h2>
-<p>Eliminating whitespaces and repeated spaces are important in ensuring
-that data are not misrepresented by the presence of unintended spaces.
-The <code>member_casual</code> data are converted to lower case to
-ensure proper identification and data consistency.</p>
+<p>Eliminating whitespace and extra spaces prevents data
+inconsistencies. The <code>member_casual</code> data are converted to
+lower case to ensure proper identification and data consistency.</p>
 <pre class="r"><code># Load most recent simulation cleaned rds
 sim_cleaned_data &lt;- 
   readRDS(file.path(sim_processed_data_dir, 
@@ -755,12 +739,6 @@ sim_cleaned_data$member_casual &lt;- tolower(sim_cleaned_data$member_casual)
 
 message(&quot;Character columns whitespaces removed, casual_member column standardized.&quot;)</code></pre>
 <pre><code>## Character columns whitespaces removed, casual_member column standardized.</code></pre>
-<pre class="r"><code># Save processed data as RDS, given specific name for this simulation
-saveRDS(sim_cleaned_data, 
-        file.path(sim_processed_data_dir,&quot;trimmed_sim_cleaned_data.rds&quot;))
-
-message(&quot;RDS file saved successfully: trimmed_sim_cleaned_data.rds&quot;)</code></pre>
-<pre><code>## RDS file saved successfully: trimmed_sim_cleaned_data.rds</code></pre>
 <hr />
 </div>
 <div id="computing-and-adding-the-ride_duration-column" class="section level2">
@@ -799,12 +777,6 @@ calculate_ride_duration &lt;- function(df){
 sim_cleaned_data &lt;- calculate_ride_duration(sim_cleaned_data)</code></pre>
 <pre><code>## Found 723 rides with invalid durations(&lt;=0 minutes.
 ## invalid rides flagged but not removed.</code></pre>
-<pre class="r"><code># Save processed data as RDS, given specific name for this simulation
-saveRDS(sim_cleaned_data, 
-        file.path(sim_processed_data_dir,&quot;sim_ride_duration_cleaned_data.rds&quot;))
-
-message(&quot;RDS file saved successfully: sim_ride_duration_cleaned_data.rds&quot;)</code></pre>
-<pre><code>## RDS file saved successfully: sim_ride_duration_cleaned_data.rds</code></pre>
 <pre class="r"><code># Check that the columns have been added
 str(sim_cleaned_data)</code></pre>
 <pre><code>## &#39;data.frame&#39;:    5999257 obs. of  15 variables:
@@ -836,16 +808,16 @@ invalid, and outlier data.</p>
 <hr />
 </div>
 </div>
-<div id="step-7-ride-duration-cleaning-analysis" class="section level2">
-<h2>Step 7: Ride Duration Cleaning Analysis</h2>
+<div id="ride-duration-cleaning-analysis" class="section level2">
+<h2>Ride Duration Cleaning Analysis</h2>
 <p>During data validation, the <code>ride_duration</code> column was
 found to contain <strong>negative values</strong> and
-<strong>suspiciously high</strong> durations, warranting further
+<strong>suspiciously high</strong> ride duration, warranting further
 investigation to assess potential data integrity issues.</p>
 <div id="analysis-findings" class="section level3">
 <h3>Analysis Findings</h3>
 <ul>
-<li><p>Negative ride durations were identified as likely system or
+<li><p>Negative ride duration were identified as likely system or
 logging errors and removed since they do not represent valid
 trips.</p></li>
 <li><p>According to the company’s <strong>terms of service</strong>, any
@@ -889,13 +861,7 @@ sim_cleaned_data &lt;-
 #   may be assessed a lost/stolen bike fee.
 
 sim_cleaned_data &lt;- sim_cleaned_data %&gt;% 
-  filter(ride_duration &gt; 0, ride_duration &lt; 1440)
-
-# Save the cleaned dataset after applying the exclusion rule
-saveRDS(sim_cleaned_data, file.path(sim_processed_data_dir, &quot;sim_invalid_data_free_data.csv&quot;))
-cat(&quot;\nUpdated cleaned dataset successfully saved!\n&quot;)</code></pre>
-<pre><code>## 
-## Updated cleaned dataset successfully saved!</code></pre>
+  filter(ride_duration &gt; 0, ride_duration &lt; 1440)</code></pre>
 <pre class="r"><code># --------------------------------------------------------------
 # Step 3: Evaluate Ride Duration to Explore Lower and Upper Bounds
 # --------------------------------------------------------------
@@ -912,14 +878,14 @@ cat(&quot;\nSummary Statistics: Ride Duration (Full Dataset)\n&quot;)</code></pr
 ## Summary Statistics: Ride Duration (Full Dataset)</code></pre>
 <pre class="r"><code>print(summary(sim_cleaned_data$ride_duration))</code></pre>
 <pre><code>##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##    0.0007    5.4958    9.6167   15.2708   17.0590 1439.8333</code></pre>
+##    0.0008    5.6014    9.7167   15.4236   17.1807 1439.8333</code></pre>
 <pre class="r"><code># Analyze rides 0 &lt; x &lt; 1
 cat(&quot;\nSummary Statistics: Short Rides (&lt;1 minute)\n&quot;)</code></pre>
 <pre><code>## 
 ## Summary Statistics: Short Rides (&lt;1 minute)</code></pre>
 <pre class="r"><code>print(summary(sim_cleaned_data$ride_duration[sim_cleaned_data$ride_duration &lt; 1 ]))</code></pre>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-## 0.00065 0.18642 0.33233 0.38383 0.55310 0.99998</code></pre>
+## 0.00085 0.21667 0.35450 0.40400 0.56667 0.99997</code></pre>
 <pre class="r"><code># Create a table summarizing rides greater than X minutes
 ride_duration_summary &lt;- data.frame(
   &quot;Duration_Threshold (min)&quot; = c(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130),
@@ -995,13 +961,13 @@ cat(&quot;\nRide Duration Quantiles for Extended Rides (90%-100%)...\n&quot;)</c
 <pre class="r"><code>print(quantile(sim_cleaned_data$ride_duration, 
                probs = c(0.90, 0.95, 0.99, 0.995, 0.998, 0.999, 1)))</code></pre>
 <pre><code>##        90%        95%        99%      99.5%      99.8%      99.9%       100% 
-##   29.53333   41.90663   94.05529  129.54913  196.24445  330.41497 1439.83333</code></pre>
+##   29.69890   42.11433   94.50827  130.17246  197.30912  333.29813 1439.83333</code></pre>
 </div>
 <div id="notes" class="section level3">
 <h3>Notes:</h3>
 <ul>
-<li>ride_duration 0 &lt; x &lt; 1 is not empty, evaluate same station
-start and end.</li>
+<li>The dataset contains rides where 0 &lt; ride_duration &lt; 1. These
+require further evaluation for start and end station consistency.</li>
 <li>Extended ride 130+ is a candidate for upper boundary which yields
 99.5% of current database size.</li>
 </ul>
@@ -1014,7 +980,7 @@ start and end.</li>
 
 cat(&quot;\nTotal rides &lt;= 1 min&quot;, sum(sim_cleaned_data$ride_duration &lt;= 1))</code></pre>
 <pre><code>## 
-## Total rides &lt;= 1 min 134035</code></pre>
+## Total rides &lt;= 1 min 73243</code></pre>
 <pre class="r"><code># Count short rides where start &amp; end station are the same. Exclude NA
 sim_same_station_rides &lt;- sum(
   sim_cleaned_data$start_station_id == sim_cleaned_data$end_station_id &amp; 
@@ -1024,14 +990,14 @@ sim_same_station_rides &lt;- sum(
 
 cat(&quot;\nShort rides where start and end station are the same:&quot;, sim_same_station_rides, &quot;\n&quot;)</code></pre>
 <pre><code>## 
-## Short rides where start and end station are the same: 36912</code></pre>
+## Short rides where start and end station are the same: 0</code></pre>
 <pre class="r"><code># Remove the short rides with identical start and end station, excluding NA.
 sim_cleaned_data &lt;- sim_cleaned_data %&gt;% 
   filter(!(start_station_id==end_station_id &amp; !is.na(start_station_id) &amp;
              ride_duration &lt;= 1))
 
 cat(&quot;Total short rides removed:&quot;, sim_same_station_rides, &quot;\n&quot;)</code></pre>
-<pre><code>## Total short rides removed: 36912</code></pre>
+<pre><code>## Total short rides removed: 0</code></pre>
 <pre class="r"><code># Verify that no more short rides with identical start and end station exist
 sim_same_station_rides_after &lt;- sum(
   sim_cleaned_data$start_station_id == sim_cleaned_data$end_station_id &amp; 
@@ -1083,7 +1049,7 @@ ggplot(sim_cleaned_data %&gt;% filter(ride_duration &gt;= 130), aes(x = ride_dur
 <p>To analyze <strong>time-based rider behavior</strong>, we extracted
 the <strong>day of the week</strong><br />
 for each ride using the <code>wday()</code> function on the
-<code>started_at</code> timestamp.</p>
+<code>started_at</code> time stamp.</p>
 <div id="why-this-matters" class="section level3">
 <h3>Why This Matters:</h3>
 <ul>
@@ -1105,21 +1071,29 @@ table(sim_cleaned_data$day_of_week)</code></pre>
 <pre><code>## 
 ##    Sunday    Monday   Tuesday Wednesday  Thursday    Friday  Saturday 
 ##    788266    795784    812953    895374    855118    853439    929128</code></pre>
-<pre class="r"><code># Save the current version of the RDS
-saveRDS(sim_cleaned_data,file.path(sim_processed_data_dir, 
-                                   &quot;sim_ride_duration_cleaned_data.rds&quot;))
-cat(&quot;\nUpdated cleaned dataset successfully saved!\n&quot;)</code></pre>
-<pre><code>## 
-## Updated cleaned dataset successfully saved!</code></pre>
 </div>
 <div id="final-notes" class="section level3">
 <h3>Final Notes:</h3>
 <ul>
 <li>The dataset now only contains rides where 0 &lt; ride_duration &lt;
 1440.</li>
-<li>Short rides (&lt;= 1 min) with the same start &amp; end station have
-been removed.</li>
-<li>Identified 130+ minutes as possible upper boundary.</li>
+<li>Short rides (&lt; 0 min) have been removed.</li>
+<li><strong>Final ride duration bins identified:</strong>
+<ul>
+<li><strong>Short:</strong> ≤7 minutes<br />
+</li>
+<li><strong>Medium:</strong> 8–30 minutes<br />
+</li>
+<li><strong>Long:</strong> 31–60 minutes<br />
+</li>
+<li><strong>Extended:</strong> 60+ minutes<br />
+</li>
+</ul></li>
+<li>The 130+ min threshold was an initial consideration but was later
+refined during EDA.<br />
+</li>
+<li><code>ride_duration</code> and <code>day_of_week</code> columns
+added.</li>
 </ul>
 </div>
 </div>

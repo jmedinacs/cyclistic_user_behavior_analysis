@@ -12,17 +12,21 @@ source(here::here("simulation/simConfig.R"))
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Cleaning Log Introduction
-This cleaning log is a demonstration and report of all the cleaning steps that 
-were done to the dataset in the fulfillment of this analysis project. The dataset 
+This cleaning log is a demonstration and report of all cleaning steps performed 
+on the dataset as part of this analysis project. The dataset 
 consists of thirteen columns that make up a profile of each Divvy Bikes Chicago 
-bike rental ride. The project's goal is to gain an insight on the differences 
-in the behavior of casual riders versus member riders in order to make 
-data-driven recommendations on how to encourage casual riders to become members.
+bike-share service ride log. 
+
+The project's goal is to analyze behavioral 
+differences between casual and member riders to develop data-driven 
+recommendations for increasing membership conversion.
 
 NOTE: The script shown are the simulation version, thus every saved RDS 
 pertains to that script/chunk to preserve the value at that specific point of 
 the project. In the live version, the most current version is always saved and 
 updated using the same file.
+
+---
 
 ## Detailed Spreadsheet Logs
 **View the full Cleaning Log, Changelog, and EDA Log here:**  
@@ -54,7 +58,7 @@ str(jan_2024)
 
 ```
 ### Column Name Check
-This chunk comfirms that all the column names across all dataset have consistent 
+This chunk confirms that all the column names across all dataset have consistent 
 names.
 ```{r Check Column Names Across All Dataset}
 # Function that checks if all the column names are exactly the same
@@ -81,8 +85,7 @@ check_column_names <- function(directory){
 check_column_names(sim_raw_data_dir)
 ```
 ### Column Data Type Check
-This chunk confirms that all the columns in every dataset have the same 
-corresponding data types.
+This step ensures that all datasets maintain consistent column data types.
 ```{r Column Data Type Check}
 # This function checks if all the data types in each column of every dataset
 # is the same type. This will print the mismatched data types if found. 
@@ -117,8 +120,7 @@ The chunk combines all the dataset into one dataset while also ensuring that
 every missing data is set to NA for consistency and data accuracy when the
 analysis work begins.  
 
-As seen in the output, the head and tail of the combined dataset shows data from 
-January 2024 and January 2025.
+The output confirms that the combined dataset spans from January 2024 to January 2025.
 ```{r Combine Datasets and Set Missing Data to NA}
 # Compile all csv file names  from the sim_raw_data_dir
 sim_raw_files <- list.files(path=sim_raw_data_dir,pattern="*.csv", 
@@ -134,13 +136,8 @@ sim_combined_dataset <- bind_rows(lapply(sim_raw_files, function(file) {
 head(sim_combined_dataset)
 # Verify that the tail of the combined dataset is Jan 2025
 tail(sim_combined_dataset)
-
-# Save an RDS version of the dataset for optimal loading and access
-saveRDS(sim_combined_dataset, file.path(sim_processed_data_dir, "sim_combined_raw_data.rds"))
-# Save a csv version of the dataset for sharing
-write.csv(sim_combined_dataset, 
-          file.path(sim_processed_data_dir, "sim_combined_raw_data.csv"),row.names = FALSE)
 ```
+
 ---
 
 ## Convert Character Dates to POSIXct
@@ -170,20 +167,15 @@ print("started_at column preview")
 str(sim_processed_data$started_at)
 print("ended_at column preview")
 str(sim_processed_data$ended_at)
-
-# Save processed data as RDS, given specific name for this simulation
-saveRDS(sim_processed_data, 
-        file.path(sim_processed_data_dir,"processed_combined_data_posixct.rds"))
-
-message("RDS file saved successfully: processed_combined_data_posixct.rds")
 ```
+
 ---
 
 ## Check for Missing Values for Each Column
 The next step is to check for missing values in each column. This is an 
 essential step in verifying data completeness and integrity.  
 
-#### Evaluation
+### Evaluation
 The chunk shows that about **20%** of the data contains missing 
 start_station_id, start_station_name, end_station_name, and end_station_id. This 
 amount of data is **not negligible**, fortunately, the absence of these 
@@ -219,20 +211,12 @@ sim_missing_summary <- sim_missing_values_summary(df)
 
 # Display the missing values summary as a formatted table
 knitr::kable(sim_missing_summary, caption = "Missing Values Summary by Column")
-
-
-
-# Save the summary for documentation
-write.csv(sim_missing_summary, file.path(sim_processed_data_dir,
-    "sim_missing_values_summary.csv"))
-cat("Missing values summary saved in processed folder.\n")
 ```
 
 ---
 
 ## Trimming Whitespace and Standardizing the `member_casual` Column
-Eliminating whitespaces and repeated spaces are important in ensuring that 
-data are not misrepresented by the presence of unintended spaces. The 
+Eliminating whitespace and extra spaces prevents data inconsistencies. The 
 `member_casual` data are converted to lower case to ensure proper identification 
 and data consistency.
 ```{r trimming-white-space-and-standardize-casual-member-column}
@@ -253,12 +237,6 @@ sim_cleaned_data[char_cols] <- lapply(sim_cleaned_data[char_cols], trimws)
 sim_cleaned_data$member_casual <- tolower(sim_cleaned_data$member_casual)
 
 message("Character columns whitespaces removed, casual_member column standardized.")
-
-# Save processed data as RDS, given specific name for this simulation
-saveRDS(sim_cleaned_data, 
-        file.path(sim_processed_data_dir,"trimmed_sim_cleaned_data.rds"))
-
-message("RDS file saved successfully: trimmed_sim_cleaned_data.rds")
 ```
 
 ---
@@ -297,12 +275,6 @@ calculate_ride_duration <- function(df){
 # Call the function
 sim_cleaned_data <- calculate_ride_duration(sim_cleaned_data)
 
-# Save processed data as RDS, given specific name for this simulation
-saveRDS(sim_cleaned_data, 
-        file.path(sim_processed_data_dir,"sim_ride_duration_cleaned_data.rds"))
-
-message("RDS file saved successfully: sim_ride_duration_cleaned_data.rds")
-
 # Check that the columns have been added
 str(sim_cleaned_data)
 ```
@@ -315,18 +287,17 @@ erroneous, invalid, and outlier data.
 ```{r Time Duration Summary}
 summary(sim_cleaned_data$ride_duration)
 ```
-
 ---
 
-## Step 7: Ride Duration Cleaning Analysis
+## Ride Duration Cleaning Analysis
 
 During data validation, the `ride_duration` column was found to contain 
-**negative values** and **suspiciously high** durations, warranting further 
+**negative values** and **suspiciously high** ride duration, warranting further 
 investigation to assess potential data integrity issues.
 
 ### Analysis Findings
 
-* Negative ride durations were identified as likely system or logging errors and 
+* Negative ride duration were identified as likely system or logging errors and 
 removed since they do not represent valid trips.
 
 * According to the company's **terms of service**, any ride lasting 24 hours or more 
@@ -369,11 +340,8 @@ sim_cleaned_data <-
 
 sim_cleaned_data <- sim_cleaned_data %>% 
   filter(ride_duration > 0, ride_duration < 1440)
-
-# Save the cleaned dataset after applying the exclusion rule
-saveRDS(sim_cleaned_data, file.path(sim_processed_data_dir, "sim_invalid_data_free_data.csv"))
-cat("\nUpdated cleaned dataset successfully saved!\n")
 ```
+
 ```{r evaluate-ride-duration-distribution}
 # --------------------------------------------------------------
 # Step 3: Evaluate Ride Duration to Explore Lower and Upper Bounds
@@ -409,8 +377,10 @@ print(quantile(sim_cleaned_data$ride_duration,
                probs = c(0.90, 0.95, 0.99, 0.995, 0.998, 0.999, 1)))
 ```
 ### Notes:
-* ride_duration 0 < x < 1 is not empty, evaluate same station start and end.
-* Extended ride 130+ is a candidate for upper boundary which yields 99.5% of current database size.
+* The dataset contains rides where 0 < ride_duration < 1. These require further 
+evaluation for start and end station consistency.
+* Extended ride 130+ is a candidate for upper boundary which yields 99.5% of 
+current database size.
 
 
 ```{r investigate-ride-0-to-1}
@@ -485,7 +455,7 @@ ggplot(sim_cleaned_data %>% filter(ride_duration >= 130), aes(x = ride_duration)
 ## Adding the `day_of_week` Column  
 
 To analyze **time-based rider behavior**, we extracted the **day of the week**  
-for each ride using the `wday()` function on the `started_at` timestamp.  
+for each ride using the `wday()` function on the `started_at` time stamp.  
 
 ### Why This Matters:
 * **Hourly trends** – Understanding peak riding hours.  
@@ -501,12 +471,6 @@ sim_cleaned_data <- sim_cleaned_data %>%
 
 # Quick check of distribution
 table(sim_cleaned_data$day_of_week)
-
-
-# Save the current version of the RDS
-saveRDS(sim_cleaned_data,file.path(sim_processed_data_dir, 
-                                   "sim_ride_duration_cleaned_data.rds"))
-cat("\nUpdated cleaned dataset successfully saved!\n")
 ```
 
 
@@ -519,7 +483,8 @@ cat("\nUpdated cleaned dataset successfully saved!\n")
   - **Medium:** 8–30 minutes  
   - **Long:** 31–60 minutes  
   - **Extended:** 60+ minutes  
-* The previous **130+ min** threshold was an initial consideration but was refined during EDA.  
+* The 130+ min threshold was an initial consideration but was later refined 
+during EDA.  
 * `ride_duration` and `day_of_week` columns added. 
 
 
