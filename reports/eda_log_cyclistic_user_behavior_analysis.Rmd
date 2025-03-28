@@ -221,7 +221,7 @@ ride_type_percentage <- cleaned_data %>%
   mutate(percent = (count / sum(count)) * 100) %>% 
   ungroup()
 
-# Convert to a table for better readability
+# Create a formatted table for better readability
 knitr::kable(
   ride_type_percentage,
   caption = "Bike Type Usage by Rider Type (Percentage Breakdown)",
@@ -258,6 +258,64 @@ members. Casual rider's classic bike ride duration is more than twice as long
 as that of member's classic bike rides. 
 
 ---
+
+## Ride Duration by Bike Type and Rider Type
+Here we are going to analyze the ride duration of casual riders and member 
+with respect to **ride type**. This will give us an insight on the riding 
+behavior and preference of casual and member riders when using each type of 
+equipment.
+
+```{r ride-duration-ride-type-vs-rider-type}
+# Compute average ride duration per bike type **and** rider type
+avg_ride_duration_by_type <- cleaned_data %>%
+  group_by(member_casual, rideable_type) %>%
+  summarise(
+    avg_duration = mean(ride_duration, na.rm = TRUE),
+    median_duration = median(ride_duration, na.rm = TRUE),
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(member_casual) %>% 
+  mutate(percent_of_rider_type = (count / sum(count)) * 100) %>% 
+  ungroup() %>%
+  arrange(rideable_type, desc(avg_duration))  # Sort for better visualization
+
+# Table: Average Ride Duration per Bike Type and Rider Type (With Percentages)
+knitr::kable(
+  avg_ride_duration_by_type %>% select(-count),  # Remove count column since we now use percentage
+  caption = "Average Ride Duration by Bike Type and Rider Type (Percentage of Rider Type)",
+  digits = 2,
+  format = "pipe"
+)
+```
+
+```{r ride-duration-rider-type-vs-ride-duration-visualization}
+# Dodge Bar Chart: Ride Duration per Bike Type and Rider Type
+ggplot(avg_ride_duration_by_type, aes(x = rideable_type, y = avg_duration, fill = member_casual)) +
+  geom_col(position = "dodge") +
+  geom_text(aes(label = round(avg_duration, 2)), 
+            position = position_dodge(width = 0.9), 
+            vjust = -0.3, size = 4) +  # Add value labels with padding
+  labs(
+    title = "Average Ride Duration by Bike Type and Rider Type",
+    x = "Bike Type",
+    y = "Average Ride Duration (Minutes)",
+    fill = "Rider Type"
+  ) +
+  scale_fill_manual(values = c("casual" = "skyblue", "member" = "darkblue")) +
+  scale_x_discrete(labels = c("classic_bike" = "Classic Bike", 
+                              "electric_bike" = "Electric Bike", 
+                              "electric_scooter" = "Electric Scooter")) +
+  theme_light() +
+  theme(plot.margin = margin(20, 10, 10, 10))  # Add padding to prevent cutoff
+```
+### Analysis and Key Insights
+* The **preference for ride type is nearly identical** for both groups.
+* **Electric bikes** are slightly more popular than classic bikes.
+* Casual riders use classic bikes **almost twice as long** as members do.
+* **Casual riders also tend to take longer rides on e-bikes** than members.
+* Possible marketing strategy: Highlight the **cost difference for long rides** 
+between membership pricing and casual ride pricing.
 
 ## Binning `ride_duration` 
 
@@ -437,14 +495,15 @@ pander(ride_duration_summary,
 ```
 ### Analysis and Key Insights
 * Ride duration for casual riders peak on the weekends.
-* Ride duration for members peak mid-week.
+* Ride duration for members palso peaks on the weekends but not as drastic as 
+those of casual riders..
 * Ride duration summary values are consistent outside of peak days.
 
 ---
 
 ## Visualization of Median Ride Duration for Each Day of the Week
 Based on the analysis of the value summaries for each day for both rider types, 
-the presence of very samll and very large min and max values can easily skew the 
+the presence of very small and very large min and max values can easily skew the 
 value of the mean, thus we are going to use the median as average. 
 
 ```{r ride-duration-median-visualization-per-day-of-week}
@@ -636,3 +695,91 @@ print(plot_casual_heatmap)
 peak days and hours (weekdays 16:00 - 18:00).
 * This further solidifies the analysis that a significant number of casual 
 riders are locals that can be converted. 
+
+## eBike Hourly and Daily Ride Analysis
+This section analyzes user preference in terms of **electric bike rides** with 
+respect to hours and days of the week. Based on earlier analysis that ebike 
+use is popular among casual and member riders, this will give us an insight 
+on user likelihood of renting an ebike during peak hours and days.
+
+```{r ebike-heatmap-all-riders}
+# Electric bike usage heatmap
+electric_data <- cleaned_data %>% 
+  filter(rideable_type == "electric_bike")
+# All Riders
+# Summarize electric bike rides by day_of_week and start_hour for all riders
+electric_rides_all <- electric_data %>% 
+  group_by(day_of_week, start_hour) %>% 
+  summarise(ride_count = n(), .groups = "drop")
+
+# Create the heatmap for all riders using electric bikes
+plot_electric_all <- ggplot(electric_rides_all, 
+                            aes(x = start_hour, y = fct_rev(day_of_week), fill = ride_count)) +
+  geom_tile(color = "white") +  # Adds white borders for clarity
+  scale_fill_gradient(low = "lightyellow", high = "red") +  # Color gradient for ride count
+  scale_x_continuous(breaks = seq(0, 23, by = 2)) +         # X-axis labels every 2 hours
+  labs(
+    title = "Hourly Electric Bike Usage (All Riders)",
+    x = "Hour of the Day",
+    y = "Day of the Week",
+    fill = "Ride Count"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    text = element_text(size = 14),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12)
+  )
+
+# Display the plot
+print(plot_electric_all)
+```
+```{r casual-riders-ebike-rides-heatmap}
+# Casual Riders Only Electric Bike Heatmap
+# Filter for casual riders only from the electric bike data
+electric_data_casual <- electric_data %>% 
+  filter(member_casual == "casual")
+
+# Summarize electric bike rides by day_of_week and start_hour for casual riders
+electric_rides_casual <- electric_data_casual %>% 
+  group_by(day_of_week, start_hour) %>% 
+  summarise(ride_count = n(), .groups = "drop")
+
+# Create the heatmap for casual riders using electric bikes
+plot_electric_casual <- ggplot(electric_rides_casual, 
+                               aes(x = start_hour, y = fct_rev(day_of_week), fill = ride_count)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightyellow", high = "red") +
+  scale_x_continuous(breaks = seq(0, 23, by = 2)) +
+  labs(
+    title = "Hourly Electric Bike Usage (Casual Riders Only)",
+    x = "Hour of the Day",
+    y = "Day of the Week",
+    fill = "Ride Count"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    text = element_text(size = 14),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12)
+  )
+
+# Display the casual riders' heatmap
+print(plot_electric_casual)
+```
+
+### Analysis and Key Insights
+* **eBike usage** when considering all rides is high during the weekday 
+commute hours in the morning and afternoon and also on the weekends.
+* The highest usage is Wednesday at 17:00 when lookingat the all rides 
+heatmap.
+* **Casual riders** tend to heavily use an eBike on Saturdays but the casual 
+riders heatmap also shows that eBike usage is high **Wednesday to Friday** 
+during the **afternoon commute hours**.
+* Highlighting the member eBike pricing rate would be a strong benefit to 
+market in order to convince casual riders to sign up for membership.
+
+## Seasonal Rider Usage Analysis
+This section will evaluate the riding behavior of 
