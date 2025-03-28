@@ -38,10 +38,10 @@ insight can be leveraged for marketing
 3. **Time-Based Trends in Service Usage**
 
 * **Hourly and weekly heatmaps** to analyze user riding pattern at different 
-times of the day and days of the week.
+  times of the day and days of the week.
 * **Hourly and weekly eBike usage heatmap** to analyze eBike preference and use.
 * **Seasonal trends** by analyzing monthly ride distributions to evaluate peak 
-demand periods. 
+  demand periods. 
 
 4. **Bike Type Preference & Usage Patterns**
 
@@ -111,16 +111,17 @@ p <- ggplot(account_counts, aes(x = account_type,
 # Display the Plot
 print(p)
 ```
+
 ### Analysis and Key Insights
 
 * To ensure **fair comparisons**, percentages or averages should be used 
-**instead of raw counts** to avoid skewed results due to the **imbalance between 
-casual and member totals.**
-*This *high number of casual riders** presents an opportunity for 
-**membership conversion marketing.**
+  **instead of raw counts** to avoid skewed results due to the 
+  **imbalance between casual and member totals.**
+* This **high number of casual riders** presents an opportunity for 
+  **membership conversion marketing.**
 * To ensure fair comparisons, **percentages or averages** should be used 
-instead of raw counts to avoid skewed results due to the **imbalance between 
-casual and member totals.**
+  instead of raw counts to avoid skewed results due to the 
+  **imbalance between casual and member totals.**
 
 ---
 
@@ -185,7 +186,6 @@ ggplot(summary_data, aes(x = Statistic, y = Value, fill = Rider_Type)) +
        y = "Ride Duration (Minutes)") +
   theme_light()
 ```
-Box plot visualization
 
 ```{r ride-duration-vs-rider-type-box-plot}
 # Box plot of the summaries of casual vs member ride durations
@@ -200,14 +200,15 @@ ggplot(cleaned_data, aes(x = member_casual, y = ride_duration, fill = member_cas
   scale_fill_manual(values = c("casual" = "skyblue", "member" = "darkblue")) + 
   theme_light()
 ```
+
 ### Analysis and Key Inisghts
 
 * Based on numerical and visual comparison of the summaries of casual and 
-member ride duration, casual riders tend to use the service longer than members.
+  member ride duration, casual riders tend to use the service longer than members.  
 * The box plot shows that casual riders tend to take longer rides than members 
-at every quartile measurement.
+  at every quartile measurement.  
 * Member ride duration from Q1 to Q3 are contained within a **narrower range**, 
-indicating a more **consistent** riding pattern.
+  indicating a more **consistent** riding pattern.
 
 ---
 
@@ -254,7 +255,7 @@ ggplot(ride_type_percentage, aes(x = rideable_type, y = percent, fill = member_c
 ### Analysis and Key Insights
 
 * Both casual and members show a slightly higher preference in e-bikes compared 
-classic bikes which are both nearly half the rides each. 
+  classic bikes which are both nearly half the rides each. 
 * Rental for **e-scooters** is 3.89% for casual riders and 1.52% for members.
 
 ---
@@ -308,13 +309,14 @@ ggplot(avg_ride_duration_by_type, aes(x = rideable_type, y = avg_duration, fill 
   theme_light() +
   theme(plot.margin = margin(20, 10, 10, 10))  # Add padding to prevent cutoff
 ```
+
 ### Analysis and Key Insights
 * The **preference for ride type is nearly identical** for both groups except on 
-classic bikes.
+  classic bikes.
 * Casual riders' ride duration on classic bikes are more than twice as long as 
-the average classic bike ride duration of members.
+  the average classic bike ride duration of members.
 * Possible marketing campaign strategy would be to highlight the cost savings 
-of longer rides with member pricing compared to pe-ride or day pass pricing.
+  of longer rides with member pricing compared to pe-ride or day pass pricing.
 
 ---
 
@@ -327,14 +329,14 @@ organize data but it also significantly **reduces noise.**
 ### Identifying Bin Thresholds
 
 * Based on previous analysis of casual and member `ride_duration` summaries, 
-the **1st quartile** values for casual (6.78 minutes) and members (5.14 minutes) 
-indicates that 5 - 7 minutes is a plausible threshold for **short rides**. 
+  the **1st quartile** values for casual (6.78 minutes) and members (5.14 minutes) 
+  indicates that 5 - 7 minutes is a plausible threshold for **short rides**. 
 * Upon examination of data distribution based on selected thresholds 
-(see table below), the number of rides up to the 30 minute mark contains 90.19% 
-of the total ride; this is a plausible threshold for **medium rides**.
+  (see table below), the number of rides up to the 30 minute mark contains 90.19% 
+  of the total ride; this is a plausible threshold for **medium rides**.
 * Using the same table, rides up to the 60-minute mark consists of 97.52% of 
-the data. The 60-minute mark is also a point where the increase in data 
-distribution slows down and thus is chosen as the upper bound for **long rides.**
+  the data. The 60-minute mark is also a point where the increase in data 
+  distribution slows down and thus is chosen as the upper bound for **long rides.**
 * Any ride **beyond 60 minutes** is considered **extended.**
 
 ```{r table-of-ride-distribution-based-on-minutes}
@@ -440,12 +442,12 @@ ggplot(cleaned_data, aes(x = ride_category, fill = ride_category)) +
 
 ### Analysis and Key Insights
 * **90.19% of rides** are 30 minutes or shorter, thus the interval 7 - 30 
-minutes is an appropriate choice for "medium" duration type of ride.
+  minutes is an appropriate choice for "medium" duration type of ride.
 * The **ECDF plot** confirms that ride duration increases at a much 
-slower rate beyond the 60-minute mark. 
+  slower rate beyond the 60-minute mark. 
 * With **ride categories now set**, we can begin the analysis of **time-based** 
-rider behaviors to discover trends in peak usage, hourly demands, daily demands, 
-and seasonal ride fluctuations. 
+  rider behaviors to discover trends in peak usage, hourly demands, daily demands, 
+  and seasonal ride fluctuations. 
 
 ---
 
@@ -494,10 +496,11 @@ ride_duration_summary <- bind_rows(casual_summary, member_summary)
 pander(ride_duration_summary, 
        caption = "Ride Duration Summary by Day of the Week (Casual vs. Member)")
 ```
+
 ### Analysis and Key Insights
 * Ride duration for casual riders peak on the weekends.
 * Ride duration for members also peaks on the weekends but not as drastic as 
-those of casual riders.
+  those of casual riders.
 * Ride duration summary values are consistent outside of peak days.
 
 ---
@@ -552,13 +555,14 @@ plot_median_duration <- ggplot(median_ride_duration_summary,
 # Display the plot
 print(plot_median_duration)
 ```
+
 ### Analysis and Key Insights
 * Both casual and member rider median ride duration shows an uptick during the 
-weekend.
+  weekend.
 * Member median value are consistently in the 8-9 minute range throughout the 
-week.
+  week.
 * Casual rider median values rise significantly during the weekend and follow a 
-parabolic pattern during the week.
+  parabolic pattern during the week.
 
 ## Percentage of Rides Based on Day of the Week
 This section will analyze and visualize the riding behavior of casual and 
@@ -608,11 +612,11 @@ print(plot_ride_percentage)
 
 ### Analysis and Key Insights
 * Casual ridership **peak on weekends**, but significant weekday usage suggests 
-that many casual riders are **local commuters, not just tourists**.
+  that many casual riders are **local commuters, not just tourists**.
 * Members show **consistent weekday usage**, peaking midweek, but without 
-drastic fluctuations.
+  drastic fluctuations.
 * This suggests a **conversion opportunity** for local casual riders who use the 
-service regularly during weekdays.
+  service regularly during weekdays.
 
 ## Ride Count Heatmap Based on Hours of Each Day of the Week
 This section will analyze rider service usage for every hour of each day of the 
@@ -690,11 +694,12 @@ plot_casual_heatmap <- ggplot(casual_rides_summary,
 # Display the heatmap
 print(plot_casual_heatmap)
 ```
+
 ### Analysis and Key Insights
 * Casual rider heatmap shows **significant use of service** during member rider 
-peak days and hours (weekdays 16:00 - 18:00).
+  peak days and hours (weekdays 16:00 - 18:00).
 * This further solidifies the analysis that a significant number of casual 
-riders are locals that can be converted. 
+  riders are locals that can be converted. 
 
 ## eBike Hourly and Daily Ride Analysis
 This section analyzes user preference in terms of **electric bike rides** with 
@@ -772,13 +777,13 @@ print(plot_electric_casual)
 
 ### Analysis and Key Insights
 * **eBike usage** when considering all rides is high during the weekday 
-commute hours in the morning and afternoon and also on the weekends.
+  commute hours in the morning and afternoon and also on the weekends.
 * The highest usage is Wednesday at 17:00 when looking at the all rides 
-heatmap.
+  heatmap.
 * Casual riders tend to heavily use eBikes on Saturdays and during afternoon 
-commute hours, Wednesdays through Fridays.
+  commute hours, Wednesdays through Fridays.
 * Marketing the cost benefits of member **eBike pricing** could encourage casual 
-riders to subscribe.
+  riders to subscribe.
 
 ## Seasonal Rider Usage Analysis
 This section will evaluate the riding behavior of casual riders and members 
@@ -833,17 +838,18 @@ plot_monthly_trends <- ggplot(monthly_rides, aes(x = month, y = ride_count, grou
 # Display the graph
 print(plot_monthly_trends)
 ```
+
 ### Analysis and Key Insights
 * The **majority of rides** occur from **May to October**. This suggests that 
-bike usage is highly seasonal. 
+  bike usage is highly seasonal. 
 * Both casual and member ridership trends are similar, except in January and 
-February when casual rider numbers drop significantly.
+  February when casual rider numbers drop significantly.
 * Number of rides **increase** starting in March, **peaks** in September, and 
-**decline sharply** in October to February. 
+  **decline sharply** in October to February. 
 * Casual rider count increase and decrease are **larger and sharper** compared 
-to member ridership fluctuations. 
+  to member ridership fluctuations. 
 * Casual ridership is highly seasonal compared to member ridership, suggesting 
-an opportunity for seasonal membership options.
+  an opportunity for seasonal membership options.
 * While ridership falls drastically during the winter months, members maintain 
-some level of **year round usage.**
+  some level of **year round usage.**
 
