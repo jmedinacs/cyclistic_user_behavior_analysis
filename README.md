@@ -76,7 +76,7 @@ Analyze rider behavior from a Chicago-based bike-share service to identify **beh
 
 Includes executive summary, business recommendations, visuals, and links to logs and supporting documents.
 
-📘 [Download Final Report (PDF)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/Cyclistic_Rider_Behavior_Analysis_Final_Report.pdf)
+📘 [Download Final Report (PDF)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/Cyclistic-Rider-Behavior-Analysis-Final-Report.pdf)
 
 ---
 
