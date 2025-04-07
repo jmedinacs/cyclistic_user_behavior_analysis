@@ -221,6 +221,21 @@ ggsave(filename = file.path(visualization_dir, "casual_rider_hourly_heatmap.png"
        plot = plot_casual_heatmap, width = 10, height = 6, dpi = 300)
 
 
+# Side-By-Side Heatmap
+# Combine heatmaps side by side
+combined_heatmaps <- plot_hourly_heatmap + plot_casual_heatmap + 
+  plot_layout(ncol = 2) + 
+  plot_annotation(title = "Comparison of Hourly Ride Trends",
+                  theme = theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold")))
+
+# Display the combined plot
+print(combined_heatmaps)
+
+# Save the combined heatmap to file
+ggsave(filename = file.path(visualization_dir, "hourly_heatmaps_combined.png"), 
+       plot = combined_heatmaps, width = 16, height = 7, dpi = 300)
+
+
 
 
 # Electric bike usage heatmap
