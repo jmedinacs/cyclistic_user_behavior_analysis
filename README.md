@@ -49,8 +49,11 @@ Analyze rider behavior from a Chicago-based bike-share service to identify **beh
 - Converted timestamps to POSIXct
 - Calculated `ride_duration` in minutes
 - Removed negative durations and extreme outliers (≥ 1440 mins)
-- Flagged, but retained, rides over 130 mins
-- Kept rows with missing station data (used only for non-location-based analysis)
+- Checked for data type consistency across the twelve separate raw datasets.
+- Checked for missing values and converted them to NA 
+- Identified appropriate intervals for ride category (short, medium, long, and extended)
+- Binned rides based on identified intervals
+
 
 📑 **Cleaning Log** (Google Sheets):  
 [Data Cleaning Log (Google Sheets)](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)
