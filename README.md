@@ -1,89 +1,157 @@
-# Cyclistic Customer Behavior Analysis
+# Cyclistic Rider Behavior Analysis
 
-## **Project Overview**
-Cyclistic, a bike-share program in Chicago, is looking to increase **annual membership subscriptions** by converting casual riders into long-term members. The goal of this project is to analyze customer behavior to provide insights that will help Cyclistic **develop a marketing strategy** aimed at encouraging casual riders to purchase annual memberships.
-
----
-
-## **Business Problem**
-### **Objective**
-To understand how **annual members and casual riders** use Cyclistic bikes differently and what insights can be leveraged to encourage casual riders to purchase an annual membership.
-
-### **Key Research Questions**
-1. **Ride Duration Differences**: How do ride durations differ between casual and member riders?
-2. **Time-Based Usage Trends**: When do casual riders use the service most compared to members?
-3. **Bike Type Preferences**: Are casual riders more likely to use a specific bike type compared to members?
-4. **Marketing Insights**: What ride behaviors suggest opportunities for membership conversion?
-
-### **Excluded from Analysis**
-- **Station Popularity & Location-Based Analysis**
-  - The dataset **lacks complete station data** for every ride.
-  - Station availability is **not uniform**, and **docks per station vary**, making comparisons misleading.
-  - Since we **don’t have route tracking data**, we **cannot evaluate where riders went between start and end stations**.
-  - Given these limitations, **station-based insights will not be included** in this analysis.
+**Author**: John Paul Medina  
+**Date**: March 2025  
+**Role**: Data Analyst / Data Scientist  
+**Project Type**: Capstone Portfolio Project  
+**Tools Used**: R, ggplot2, dplyr, tidyr, lubridate, Google Sheets, Git/GitHub  
 
 ---
 
-## **Data Sources**
-- Monthly trip data from **January 2024 - January 2025**.
-- Data includes **ride start and end times, bike type, and user type (casual/member)**.
-- **Financial information is NOT provided in the dataset** but will be referenced using publicly available pricing details.
-- **Original Data Source**: [Divvy Bikes System Data](https://divvybikes.com/system-data) (Divvy Bikes, a subsidiary of Lyft, releases this dataset under a public data-sharing agreement).
+## Objective
+
+Analyze rider behavior from a Chicago-based bike-share service to identify **behavioral differences between casual riders and annual members**, and develop **data-driven recommendations to increase membership conversion**.
 
 ---
 
-## **Data Cleaning Process**
-The **data cleaning process** ensured accuracy, consistency, and usability for analysis. The full **cleaning log** is available in **[Google Sheets](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)**.
+## Key Insights
 
-### **Cleaning Steps:**
-- **Column Standardization**
-  - Verified **consistent column names** and **data types** across all datasets (Jan 2024 - Jan 2025).
-
-- **Date & Time Processing**
-  - Converted `started_at` and `ended_at` into **POSIXct format** for accurate time calculations.
-
-- **Handling Missing Values**
-  - Identified that ~20% of data was missing **start_station_name, start_station_id, end_station_name, and end_station_id**.
-  - **Decision:** Kept these rows for **ride duration and time-based analysis** but excluded them from any station-related analysis.
-
-- **Ride Duration Calculation & Validation**
-  - Computed `ride_duration` using `ended_at - started_at`.
-  - Removed invalid rides:
-    - **Negative ride durations**
-    - **Rides ≥ 1440 minutes** (as Divvy considers them lost/stolen)
-
-- **Outlier Treatment**
-  - Set **130 minutes as an upper bound** for ride duration-focused analysis while keeping all data available.
-
-- **Final Cleaned Dataset**
-  - The **cleaned dataset** retains all valid rides for analysis, with **outliers flagged but not removed** for flexibility in further exploration.
+- Casual riders take **31–72% longer rides** than members on average.
+- Casual riders are most active on **weekends**, but also ride during **weekday commute hours**, suggesting they include **local residents**.
+- Both rider types **prefer eBikes**, especially for **medium-length rides**.
+- Ridership is **highly seasonal**, peaking in **late summer**.
 
 ---
 
-## **Exploratory Data Analysis (EDA)**
-🚧 **Work in Progress** 🚧
+## Recommendations
 
-Next, we will conduct **exploratory data analysis (EDA)** to uncover key behavioral patterns, focusing on:
-- Ride duration distribution
-- Bike type preferences
-- Weekly and hourly ride trends
-- Seasonal trends
-
-This section will be updated once EDA is completed.
+1. **Market cost savings** of membership pricing over casual per-ride cost. 
+2. **Market cost savings** of membership rates for frequent **eBike** usage. 
+3. **Plan marketing campaigns and promotions** around **seasonal** trends.
 
 ---
 
-## **Project Deliverables**
-1. **Data Cleaning Log**: Complete record of all transformations and decisions made during data preparation.
-2. **Exploratory Data Analysis (EDA) Report**: Visualizations and insights into ride duration, bike type usage, and time-based trends.
-3. **Final Report**: Business recommendations based on findings, focused on increasing **membership conversions**.
+## 🗂️ Data Overview
+
+- Source: [Divvy Trip Data](https://divvybikes.com/system-data)
+- Period: **January 2024 – January 2025**
+- 5.9M+ records with:
+  - Start and end times
+  - Ride duration
+  - Bike type (classic, electric, scooter)
+  - Rider type (casual/member)
 
 ---
 
-## **Next Steps**
-- Conduct **EDA** to analyze patterns and validate insights.
-- Develop **visualizations** to compare casual vs. member riders.
-- Begin structuring **marketing recommendations** based on behavioral insights.
+## 🧹 Data Cleaning
 
-🚀 Stay tuned for updates as we progress toward delivering actionable insights for Cyclistic!
+- Unified column names and formats
+- Converted timestamps to POSIXct
+- Calculated `ride_duration` in minutes
+- Removed negative durations and extreme outliers (≥ 1440 mins)
+- Flagged, but retained, rides over 130 mins
+- Kept rows with missing station data (used only for non-location-based analysis)
 
+📑 **Cleaning Log** (Google Sheets):  
+[Data Cleaning Log (Google Sheets)](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)
+
+🧼 **Cleaning Log (R Markdown)**:  
+[Cleaning Log HTML](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/cleaning_log_cyclistic_user_behavior_analysis.html)
+
+---
+
+## 🔍 Exploratory Data Analysis (EDA)
+
+- Ride duration summary stats and distributions
+- Weekly and hourly ride heatmaps
+- Seasonal usage trends (month-by-month)
+- Bike type preference by rider type and ride length
+
+📊 **EDA Report (R Markdown)**:  
+[EDA Report HTML](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/eda_log_cyclistic_user_behavior_analysis.html)
+
+---
+
+## 📄 Final Report
+
+Includes executive summary, business recommendations, visuals, and links to logs and supporting documents.
+
+📘 [Download Final Report (PDF)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/Cyclistic_Rider_Behavior_Analysis_Final_Report.pdf)
+
+---
+
+## ✅ Skills Demonstrated
+
+- Data wrangling & preprocessing
+- Exploratory data analysis
+- Visualization & storytelling with ggplot2
+- Business problem-solving
+- Project documentation (Markdown + R Markdown)
+- Git/GitHub version control
+
+---
+
+## 📁 Project Structure
+
+```
+cyclistic_user_behavior_analysis/
+├── data/              # Contains raw and processed data folders that stores the original data and newly processed data
+├── visualization      # Visualization of data from cleaning and EDA phase
+├── reports/           # Final PDF report, cleaning and eda markdown and HTML files
+├── scripts/           # Modular R scripts for analysis
+└── README.md          # Project overview (this file)
+```
+
+---
+
+## ⚙️ How to Use This Project
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/jmedinacs/cyclistic_user_behavior_analysis.git
+cd cyclistic_user_behavior_analysis
+```
+
+### 2. Open in RStudio
+Open the `.Rproj` file in RStudio for full project support and reproducible paths.
+
+### 3. Set Up Environment with `config.R`
+
+All package loading, folder paths, and project settings are modularized in [`config.R`](config.R).  
+It runs automatically when sourcing any script.
+
+To install required packages manually, run:
+
+```r
+install.packages(c(
+  "here", "tidyverse", "ggplot2", "dplyr", "knitr", "lubridate",
+  "pander", "forcats", "scales", "kableExtra", "patchwork"
+))
+```
+
+> Optional: Set `show_paths <- TRUE` in `config.R` to print project paths for debugging.
+
+### 4. Run the Analysis
+
+- Run scripts in `scripts/` in numerical order.
+- Outputs will be saved to `output/` and `visualization/`.
+- Review final deliverables in the `reports/` folder.
+
+### 5. View Logs
+- [Cleaning Log (HTML)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/cleaning_log_cyclistic_user_behavior_analysis.html)
+- [EDA Log (HTML)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/eda_log_cyclistic_user_behavior_analysis.html)
+
+---
+
+## 🚀 About the Author
+
+John Paul Medina is a former mathematics and computer science teacher with 16 years of experience translating complex ideas into clear, actionable understanding. He holds a Bachelor of Science in Computer Science with a concentration in AI and Robotics, bringing a strong technical foundation to his work in data.
+
+Now transitioning into data analytics and data science, John combines analytical thinking, creative problem-solving, and cross-functional communication. He’s known for tackling complex challenges with grit and clarity, and for being the kind of teammate who not only delivers results but uplifts those around him.
+
+This project is part of his professional portfolio and career pivot into data-driven impact.
+
+
+📧 Contact: [GitHub](https://github.com/jmedinacs)
+
+---
