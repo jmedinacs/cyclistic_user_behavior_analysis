@@ -149,7 +149,7 @@ install.packages(c(
 
 ## 🚀 About the Author
 
-John Paul Medina is a former mathematics and computer science teacher with 16 years of experience translating complex ideas into clear, actionable understanding. He holds a Bachelor of Science in Computer Science with a concentration in AI and Robotics, bringing a strong technical foundation to his work in data.
+John Paul Medina is a former mathematics and computer science teacher with 16 years of experience translating complex ideas into clear, accessible, and actionable information. He holds a Bachelor of Arts in Mathematics and a Bachelor of Science in Computer Science with a concentration in AI and Robotics, bringing a strong analytical and technical foundation to his work in data.
 
 Now transitioning into data analytics and data science, John combines analytical thinking, creative problem-solving, and cross-functional communication. He’s known for tackling complex challenges with grit and clarity, and for being the kind of teammate who not only delivers results but uplifts those around him.
 
