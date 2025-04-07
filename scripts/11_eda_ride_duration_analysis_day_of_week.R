@@ -221,6 +221,21 @@ ggsave(filename = file.path(visualization_dir, "casual_rider_hourly_heatmap.png"
        plot = plot_casual_heatmap, width = 10, height = 6, dpi = 300)
 
 
+# Side-By-Side Heatmap
+# Combine heatmaps side by side
+combined_heatmaps <- plot_hourly_heatmap + plot_casual_heatmap + 
+  plot_layout(ncol = 2) + 
+  plot_annotation(title = "Comparison of Hourly Ride Trends",
+                  theme = theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold")))
+
+# Display the combined plot
+print(combined_heatmaps)
+
+# Save the combined heatmap to file
+ggsave(filename = file.path(visualization_dir, "hourly_heatmaps_combined.png"), 
+       plot = combined_heatmaps, width = 16, height = 7, dpi = 300)
+
+
 
 
 # Electric bike usage heatmap
@@ -353,4 +368,121 @@ ggsave(filename = file.path(visualization_dir, "monthly_ride_trends.png"),
        plot = plot_monthly_trends, width = 10, height = 6, dpi = 300)
 
 
+# Compute ride category proportions within each rider type
+ride_category_percent <- cleaned_data %>%
+  group_by(member_casual, ride_category) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(member_casual) %>%
+  mutate(percent = (count / sum(count)) * 100)  # Convert counts to percentages
+
+# Create a grouped bar chart for ride categories per rider type
+plot_ride_category_trend <- ggplot(ride_category_percent, aes(x = ride_category, y = percent, fill = member_casual)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +  # Adjust width for spacing
+  geom_text(aes(label = sprintf("%.1f%%", percent)),  # Format as percentage
+            position = position_dodge(width = 0.7), vjust = -0.3, size = 5, fontface = "bold") +
+  scale_fill_manual(values = c("casual" = "skyblue", "member" = "darkblue")) +
+  labs(
+    title = "Ride Duration Categories by Rider Type (Percentage)",
+    x = "Ride Category",
+    y = "Percentage of Rides Within Rider Type",
+    fill = "Rider Type"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +  # Format Y-axis as %
+  theme_light() +
+  expand_limits(y = max(ride_category_percent$percent) * 1.1) +  # Adds space above bars
+  theme(
+    plot.margin = margin(20, 20, 20, 20),  # Adds padding
+    text = element_text(size = 14),
+    legend.title = element_text(size = 12),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, margin = margin(b = 15)),  # Padding below title
+    panel.grid.major = element_line(color = "gray80"),
+    panel.grid.minor = element_blank()
+  )
+
+print(plot_ride_category_trend)
+
+# Save the plot as an image
+ggsave(filename = file.path(visualization_dir, "ride_category_trend.png"), 
+       plot = plot_ride_category_trend, width = 10, height = 6, dpi = 300)
+
+
+# Compute ride category proportions for each bike type within rider type
+ride_category_bike_type <- cleaned_data %>%
+  group_by(member_casual, rideable_type, ride_category) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(member_casual, rideable_type) %>%
+  mutate(percent = (count / sum(count)) * 100)  # Convert counts to percentages
+
+# Visualization 1: Ride Category by Bike Type and Rider Type
+plot_ride_category_bike <- ggplot(ride_category_bike_type, 
+                                  aes(x = ride_category, y = percent, fill = rideable_type)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +  
+  scale_fill_manual(values = c("classic_bike" = "blue", "electric_bike" = "orange", "electric_scooter" = "red")) +
+  labs(
+    title = "Ride Duration Categories by Bike Type and Rider Type",
+    x = "Ride Category",
+    y = "Percentage of Rides Within Rider Type",
+    fill = "Bike Type"
+  ) +
+  facet_wrap(~member_casual) +  # Separate casual and member riders
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +  
+  theme_light() +
+  expand_limits(y = max(ride_category_bike_type$percent) * 1.1) +  
+  theme(
+    plot.margin = margin(20, 20, 20, 20),
+    text = element_text(size = 14),
+    legend.title = element_text(size = 12),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, margin = margin(b = 15)),
+    panel.grid.major = element_line(color = "gray80"),
+    panel.grid.minor = element_blank()
+  )
+
+print(plot_ride_category_bike)
+
+# Save the plot
+ggsave(filename = file.path(visualization_dir, "ride_category_by_bike_type.png"), 
+       plot = plot_ride_category_bike, width = 10, height = 6, dpi = 300)
+
+# ------------------------------
+# Visualization 2: Medium Rides Breakdown by Bike Type
+# ------------------------------
+
+# Filter data for medium rides only
+medium_rides <- cleaned_data %>%
+  filter(ride_category == "medium") %>%
+  group_by(member_casual, rideable_type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(member_casual) %>%
+  mutate(percent = (count / sum(count)) * 100)  
+
+# Create visualization for medium rides
+plot_medium_rides <- ggplot(medium_rides, aes(x = rideable_type, y = percent, fill = rideable_type)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.6) +  
+  geom_text(aes(label = sprintf("%.1f%%", percent)),  
+            position = position_dodge(width = 0.6), vjust = -0.3, size = 5, fontface = "bold") +
+  scale_fill_manual(values = c("classic_bike" = "blue", "electric_bike" = "orange", "electric_scooter" = "red")) +
+  labs(
+    title = "Medium Ride Duration Breakdown by Bike Type",
+    x = "Bike Type",
+    y = "Percentage of Medium Rides",
+    fill = "Bike Type"
+  ) +
+  facet_wrap(~member_casual) +  # Separate casual and member riders
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +  
+  theme_light() +
+  expand_limits(y = max(medium_rides$percent) * 1.1) +  
+  theme(
+    plot.margin = margin(20, 20, 20, 20),
+    text = element_text(size = 14),
+    legend.title = element_text(size = 12),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, margin = margin(b = 15)),
+    panel.grid.major = element_line(color = "gray80"),
+    panel.grid.minor = element_blank()
+  )
+
+print(plot_medium_rides)
+
+# Save the plot
+ggsave(filename = file.path(visualization_dir, "medium_rides_by_bike_type.png"), 
+       plot = plot_medium_rides, width = 10, height = 6, dpi = 300)
 

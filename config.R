@@ -9,6 +9,7 @@ library(pander)
 library(forcats)
 library(scales)
 library(kableExtra)
+library(patchwork)
 
 # Define base project directory, location of config.R considered base location
 project_dir <- here::here()
