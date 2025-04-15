@@ -77,9 +77,10 @@ Analyze rider behavior from a Chicago-based bike-share service to identify **beh
 
 ## 📄 Final Report
 
-Includes executive summary, business recommendations, visuals, and links to logs and supporting documents.
+Includes executive summary, business recommendations, visuals, and links to logs and supporting documents (with code).
 
 📘 [Download Final Report (PDF)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/Cyclistic-Rider-Behavior-Analysis-Final-Report.pdf)
+
 
 ---
 
@@ -140,10 +141,13 @@ install.packages(c(
 - Outputs will be saved to `output/` and `visualization/`.
 - Review final deliverables in the `reports/` folder.
 
-### 5. View Logs
-- [Cleaning Log (HTML)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/cleaning_log_cyclistic_user_behavior_analysis.html)
-- [EDA Log (HTML)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/eda_log_cyclistic_user_behavior_analysis.html)
-- [Full Log (Google Sheets)](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)
+### 5. View Project Logs
+
+These logs include full **R code chunks**, **step-by-step analysis**, and commentary written in **R Markdown**. They demonstrate data wrangling, visualization, and interpretation in context.
+
+- 📄 [Cleaning Log (HTML)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/cleaning_log_cyclistic_user_behavior_analysis.html) – Includes raw data inspection, timestamp parsing, and missing value strategy
+- 📊 [EDA Log (HTML)](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/eda_log_cyclistic_user_behavior_analysis.html) – Includes ride duration, time trends, bike preference, and visual insights
+- 📋 [Full Spreadsheet Log (Google Sheets)](https://docs.google.com/spreadsheets/d/e/2PACX-1vRsdTcZUKUd6BXzZpSvwYAP8hJBCRDVilBmd9sOeeCMLLNRvnmaT5X8OIv_txawY_CcYy0frfpHOpTK/pubhtml)
 
 ---
 
@@ -156,6 +160,8 @@ Now transitioning into data analytics and data science, John combines analytical
 This project is part of his professional portfolio and career pivot into data-driven impact.
 
 
-📧 Contact: [GitHub](https://github.com/jmedinacs)
+📧 Contact: 
+- [GitHub](https://github.com/jmedinacs)  
+- [LinkedIn](https://linkedin.com/in/jpmedinacs)
 
 ---
