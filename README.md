@@ -60,7 +60,6 @@ Analyze rider behavior from a Chicago-based bike-share service to identify **beh
 
 🧼 **Cleaning Log (R Markdown)**:  
 [Cleaning Log HTML](https://jmedinacs.github.io/cyclistic_user_behavior_analysis/cleaning_log_cyclistic_user_behavior_analysis.html)
-
 ---
 
 ## 🔍 Exploratory Data Analysis (EDA)
